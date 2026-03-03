@@ -18,8 +18,9 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     ALGORITHM: str = "HS256"
 
-    # CORS
+    # CORS - comma-separated list of allowed origins
     FRONTEND_URL: str = "http://localhost:3000"
+    CORS_ORIGINS: str = ""  # Additional origins, comma-separated
 
     # Cloudinary
     CLOUDINARY_CLOUD_NAME: Optional[str] = None

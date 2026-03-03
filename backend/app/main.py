@@ -11,10 +11,28 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
+# Build CORS origins list
+cors_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Add FRONTEND_URL if set
+if settings.FRONTEND_URL and settings.FRONTEND_URL not in cors_origins:
+    cors_origins.append(settings.FRONTEND_URL)
+
+# Add additional origins from CORS_ORIGINS env var (comma-separated)
+if settings.CORS_ORIGINS:
+    additional_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+    cors_origins.extend(additional_origins)
+
+# Remove duplicates while preserving order
+cors_origins = list(dict.fromkeys(cors_origins))
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
