@@ -56,7 +56,7 @@ class ProductResponse(ProductBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class WarehouseBase(BaseModel):
@@ -94,7 +94,7 @@ class WarehouseResponse(WarehouseBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class StockMovementCreate(BaseModel):
@@ -124,7 +124,7 @@ class StockMovementResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class PurchaseOrderLineCreate(BaseModel):
@@ -146,7 +146,7 @@ class PurchaseOrderLineResponse(BaseModel):
     line_total: Decimal
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class PurchaseOrderCreate(BaseModel):
@@ -186,4 +186,4 @@ class PurchaseOrderResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True

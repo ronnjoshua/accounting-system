@@ -1,6 +1,6 @@
 # FastAPI and Server
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
+fastapi==0.100.1
+uvicorn[standard]==0.23.2
 python-multipart==0.0.6
 
 # Database
@@ -9,13 +9,10 @@ asyncpg==0.29.0
 alembic==1.13.1
 greenlet==3.0.3
 
-# Authentication
+# Authentication (using Pydantic v1 - no compilation needed)
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
-pydantic==2.5.3
-pydantic-core==2.14.6
-pydantic-settings==2.1.0
-email-validator==2.1.0
+pydantic[email]==1.10.13
 
 # Cloudinary
 cloudinary==1.38.0

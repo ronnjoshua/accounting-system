@@ -59,7 +59,7 @@ class VendorResponse(VendorBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class BillLineCreate(BaseModel):
@@ -84,7 +84,7 @@ class BillLineResponse(BaseModel):
     account_id: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class BillCreate(BaseModel):
@@ -133,7 +133,7 @@ class BillResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class VendorPaymentCreate(BaseModel):
@@ -165,4 +165,4 @@ class VendorPaymentResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True

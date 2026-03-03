@@ -9,7 +9,7 @@ class RoleResponse(BaseModel):
     description: Optional[str] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class UserCreate(BaseModel):
@@ -38,7 +38,7 @@ class UserResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class UserLogin(BaseModel):
@@ -67,7 +67,7 @@ class UserInviteResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class AcceptInvite(BaseModel):

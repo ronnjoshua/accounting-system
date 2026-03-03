@@ -13,7 +13,7 @@ class AccountTypeResponse(BaseModel):
     normal_balance: str
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class AccountBase(BaseModel):
@@ -47,7 +47,7 @@ class AccountResponse(AccountBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class CurrencyCreate(BaseModel):
@@ -66,7 +66,7 @@ class CurrencyResponse(BaseModel):
     is_active: bool
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class ExchangeRateCreate(BaseModel):
@@ -84,7 +84,7 @@ class ExchangeRateResponse(BaseModel):
     effective_date: date
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class JournalEntryLineCreate(BaseModel):
@@ -108,7 +108,7 @@ class JournalEntryLineResponse(BaseModel):
     base_credit: Decimal
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class JournalEntryCreate(BaseModel):
@@ -143,4 +143,4 @@ class JournalEntryResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True

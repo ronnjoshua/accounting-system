@@ -67,7 +67,7 @@ class CustomerResponse(CustomerBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class InvoiceLineCreate(BaseModel):
@@ -92,7 +92,7 @@ class InvoiceLineResponse(BaseModel):
     account_id: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class InvoiceCreate(BaseModel):
@@ -139,7 +139,7 @@ class InvoiceResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class CustomerPaymentCreate(BaseModel):
@@ -171,4 +171,4 @@ class CustomerPaymentResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
