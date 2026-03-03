@@ -132,9 +132,8 @@ export default function BudgetDetailPage() {
 
   const lineColumns = [
     {
-      key: 'account',
-      label: 'Account',
-      render: (_: any, row: any) => (
+      header: 'Account',
+      accessor: (row: any) => (
         <div>
           <p className="font-medium">{row.account?.code}</p>
           <p className="text-sm text-muted-foreground">{row.account?.name}</p>
@@ -142,45 +141,39 @@ export default function BudgetDetailPage() {
       ),
     },
     {
-      key: 'period',
-      label: 'Period',
-      render: (v: number) => getPeriodLabel(v, budget?.period_type || 'monthly'),
+      header: 'Period',
+      accessor: (row: any) => getPeriodLabel(row.period, budget?.period_type || 'monthly'),
     },
     {
-      key: 'amount',
-      label: 'Budget Amount',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Budget Amount',
+      accessor: (row: any) => `$${row.amount?.toLocaleString()}`,
     },
   ]
 
   const comparisonColumns = [
-    { key: 'account_code', label: 'Account' },
-    { key: 'account_name', label: 'Name' },
+    { header: 'Account', accessor: 'account_code' as const },
+    { header: 'Name', accessor: 'account_name' as const },
     {
-      key: 'budget_amount',
-      label: 'Budget',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Budget',
+      accessor: (row: any) => `$${row.budget_amount?.toLocaleString()}`,
     },
     {
-      key: 'actual_amount',
-      label: 'Actual',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Actual',
+      accessor: (row: any) => `$${row.actual_amount?.toLocaleString()}`,
     },
     {
-      key: 'variance',
-      label: 'Variance',
-      render: (v: number) => (
-        <span className={v >= 0 ? 'text-green-600' : 'text-red-600'}>
-          ${Math.abs(v).toLocaleString()} {v >= 0 ? 'under' : 'over'}
+      header: 'Variance',
+      accessor: (row: any) => (
+        <span className={row.variance >= 0 ? 'text-green-600' : 'text-red-600'}>
+          ${Math.abs(row.variance).toLocaleString()} {row.variance >= 0 ? 'under' : 'over'}
         </span>
       ),
     },
     {
-      key: 'variance_percent',
-      label: '%',
-      render: (v: number) => (
-        <span className={v >= 0 ? 'text-green-600' : 'text-red-600'}>
-          {v.toFixed(1)}%
+      header: '%',
+      accessor: (row: any) => (
+        <span className={row.variance_percent >= 0 ? 'text-green-600' : 'text-red-600'}>
+          {row.variance_percent?.toFixed(1)}%
         </span>
       ),
     },

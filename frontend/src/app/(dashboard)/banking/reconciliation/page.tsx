@@ -80,43 +80,37 @@ export default function BankReconciliationPage() {
 
   const columns = [
     {
-      key: 'statement_date',
-      label: 'Statement Date',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Statement Date',
+      accessor: (row: any) => new Date(row.statement_date).toLocaleDateString(),
     },
-    { key: 'account_id', label: 'Account' },
+    { header: 'Account', accessor: 'account_id' as const },
     {
-      key: 'statement_balance',
-      label: 'Statement Balance',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Statement Balance',
+      accessor: (row: any) => `$${row.statement_balance?.toLocaleString()}`,
     },
     {
-      key: 'gl_balance',
-      label: 'GL Balance',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'GL Balance',
+      accessor: (row: any) => `$${row.gl_balance?.toLocaleString()}`,
     },
     {
-      key: 'difference',
-      label: 'Difference',
-      render: (v: number) => (
-        <span className={v === 0 ? 'text-green-600' : 'text-red-600'}>
-          ${Math.abs(v).toLocaleString()}
+      header: 'Difference',
+      accessor: (row: any) => (
+        <span className={row.difference === 0 ? 'text-green-600' : 'text-red-600'}>
+          ${Math.abs(row.difference || 0).toLocaleString()}
         </span>
       ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      render: (v: string) => (
-        <Badge variant={v === 'completed' ? 'default' : 'secondary'}>
-          {v}
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={row.status === 'completed' ? 'default' : 'secondary'}>
+          {row.status}
         </Badge>
       ),
     },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <Button
           variant="outline"
           size="sm"

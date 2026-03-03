@@ -86,39 +86,34 @@ export default function BudgetsPage() {
   }
 
   const columns = [
-    { key: 'name', label: 'Budget Name' },
-    { key: 'fiscal_year', label: 'Fiscal Year' },
-    { key: 'period_type', label: 'Period Type' },
+    { header: 'Budget Name', accessor: 'name' as const },
+    { header: 'Fiscal Year', accessor: 'fiscal_year' as const },
+    { header: 'Period Type', accessor: 'period_type' as const },
     {
-      key: 'total_revenue',
-      label: 'Total Revenue',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Total Revenue',
+      accessor: (row: any) => `$${row.total_revenue?.toLocaleString()}`,
     },
     {
-      key: 'total_expense',
-      label: 'Total Expense',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Total Expense',
+      accessor: (row: any) => `$${row.total_expense?.toLocaleString()}`,
     },
     {
-      key: 'net_income',
-      label: 'Net Income',
-      render: (v: number) => (
-        <span className={v >= 0 ? 'text-green-600' : 'text-red-600'}>
-          ${v.toLocaleString()}
+      header: 'Net Income',
+      accessor: (row: any) => (
+        <span className={row.net_income >= 0 ? 'text-green-600' : 'text-red-600'}>
+          ${row.net_income?.toLocaleString()}
         </span>
       ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      render: (v: string) => (
-        <Badge variant={getStatusColor(v) as any}>{v}</Badge>
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={getStatusColor(row.status) as any}>{row.status}</Badge>
       ),
     },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <div className="flex gap-2">
           <Link href={`/budgets/${row.id}`}>
             <Button variant="ghost" size="sm">

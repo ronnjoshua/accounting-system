@@ -89,31 +89,28 @@ export default function UserManagementPage() {
   }
 
   const userColumns = [
-    { key: 'email', label: 'Email' },
-    { key: 'first_name', label: 'First Name' },
-    { key: 'last_name', label: 'Last Name' },
+    { header: 'Email', accessor: 'email' as const },
+    { header: 'First Name', accessor: 'first_name' as const },
+    { header: 'Last Name', accessor: 'last_name' as const },
     {
-      key: 'is_active',
-      label: 'Status',
-      render: (v: boolean) => (
-        <Badge variant={v ? 'default' : 'secondary'}>
-          {v ? 'Active' : 'Inactive'}
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={row.is_active ? 'default' : 'secondary'}>
+          {row.is_active ? 'Active' : 'Inactive'}
         </Badge>
       ),
     },
     {
-      key: 'is_superuser',
-      label: 'Role',
-      render: (v: boolean) => (
-        <Badge variant={v ? 'destructive' : 'outline'}>
-          {v ? 'Admin' : 'User'}
+      header: 'Role',
+      accessor: (row: any) => (
+        <Badge variant={row.is_superuser ? 'destructive' : 'outline'}>
+          {row.is_superuser ? 'Admin' : 'User'}
         </Badge>
       ),
     },
     {
-      key: 'actions',
-      label: 'Actions',
-      render: (_: any, row: any) => (
+      header: 'Actions',
+      accessor: (row: any) => (
         <Button
           variant="ghost"
           size="sm"
@@ -131,25 +128,22 @@ export default function UserManagementPage() {
   ]
 
   const inviteColumns = [
-    { key: 'email', label: 'Email' },
+    { header: 'Email', accessor: 'email' as const },
     {
-      key: 'is_accepted',
-      label: 'Status',
-      render: (v: boolean) => (
-        <Badge variant={v ? 'default' : 'secondary'}>
-          {v ? 'Accepted' : 'Pending'}
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={row.is_accepted ? 'default' : 'secondary'}>
+          {row.is_accepted ? 'Accepted' : 'Pending'}
         </Badge>
       ),
     },
     {
-      key: 'expires_at',
-      label: 'Expires',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Expires',
+      accessor: (row: any) => new Date(row.expires_at).toLocaleDateString(),
     },
     {
-      key: 'actions',
-      label: 'Actions',
-      render: (_: any, row: any) =>
+      header: 'Actions',
+      accessor: (row: any) =>
         !row.is_accepted && (
           <Button
             variant="ghost"

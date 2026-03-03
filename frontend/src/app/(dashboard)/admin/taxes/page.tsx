@@ -112,77 +112,67 @@ export default function TaxManagementPage() {
   }
 
   const rateColumns = [
-    { key: 'code', label: 'Code' },
-    { key: 'name', label: 'Name' },
-    { key: 'tax_type', label: 'Type' },
+    { header: 'Code', accessor: 'code' as const },
+    { header: 'Name', accessor: 'name' as const },
+    { header: 'Type', accessor: 'tax_type' as const },
     {
-      key: 'rate',
-      label: 'Rate',
-      render: (v: number) => `${v}%`,
+      header: 'Rate',
+      accessor: (row: any) => `${row.rate}%`,
     },
-    { key: 'country', label: 'Country' },
-    { key: 'state', label: 'State' },
+    { header: 'Country', accessor: 'country' as const },
+    { header: 'State', accessor: 'state' as const },
     {
-      key: 'is_active',
-      label: 'Status',
-      render: (v: boolean) => (
-        <Badge variant={v ? 'default' : 'secondary'}>
-          {v ? 'Active' : 'Inactive'}
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={row.is_active ? 'default' : 'secondary'}>
+          {row.is_active ? 'Active' : 'Inactive'}
         </Badge>
       ),
     },
   ]
 
   const periodColumns = [
-    { key: 'name', label: 'Period' },
-    { key: 'tax_type', label: 'Type' },
+    { header: 'Period', accessor: 'name' as const },
+    { header: 'Type', accessor: 'tax_type' as const },
     {
-      key: 'period_start',
-      label: 'Start',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Start',
+      accessor: (row: any) => new Date(row.period_start).toLocaleDateString(),
     },
     {
-      key: 'period_end',
-      label: 'End',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'End',
+      accessor: (row: any) => new Date(row.period_end).toLocaleDateString(),
     },
     {
-      key: 'due_date',
-      label: 'Due Date',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Due Date',
+      accessor: (row: any) => new Date(row.due_date).toLocaleDateString(),
     },
     {
-      key: 'tax_collected',
-      label: 'Collected',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Collected',
+      accessor: (row: any) => `$${row.tax_collected?.toLocaleString()}`,
     },
     {
-      key: 'tax_paid',
-      label: 'Paid',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Paid',
+      accessor: (row: any) => `$${row.tax_paid?.toLocaleString()}`,
     },
     {
-      key: 'net_tax_due',
-      label: 'Net Due',
-      render: (v: number) => (
-        <span className={v >= 0 ? 'text-red-600' : 'text-green-600'}>
-          ${Math.abs(v).toLocaleString()}
+      header: 'Net Due',
+      accessor: (row: any) => (
+        <span className={row.net_tax_due >= 0 ? 'text-red-600' : 'text-green-600'}>
+          ${Math.abs(row.net_tax_due || 0).toLocaleString()}
         </span>
       ),
     },
     {
-      key: 'is_filed',
-      label: 'Status',
-      render: (v: boolean) => (
-        <Badge variant={v ? 'default' : 'secondary'}>
-          {v ? 'Filed' : 'Pending'}
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={row.is_filed ? 'default' : 'secondary'}>
+          {row.is_filed ? 'Filed' : 'Pending'}
         </Badge>
       ),
     },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <div className="flex gap-1">
           {!row.is_filed && (
             <>

@@ -78,36 +78,31 @@ export default function RecurringPage() {
   }
 
   const columns = [
-    { key: 'name', label: 'Name' },
-    { key: 'recurring_type', label: 'Type' },
-    { key: 'frequency', label: 'Frequency' },
+    { header: 'Name', accessor: 'name' as const },
+    { header: 'Type', accessor: 'recurring_type' as const },
+    { header: 'Frequency', accessor: 'frequency' as const },
     {
-      key: 'next_run_date',
-      label: 'Next Run',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Next Run',
+      accessor: (row: any) => new Date(row.next_run_date).toLocaleDateString(),
     },
     {
-      key: 'last_run_date',
-      label: 'Last Run',
-      render: (v: string) => v ? new Date(v).toLocaleDateString() : 'Never',
+      header: 'Last Run',
+      accessor: (row: any) => row.last_run_date ? new Date(row.last_run_date).toLocaleDateString() : 'Never',
     },
     {
-      key: 'occurrences_completed',
-      label: 'Completed',
-      render: (v: number, row: any) =>
-        row.total_occurrences ? `${v}/${row.total_occurrences}` : v,
+      header: 'Completed',
+      accessor: (row: any) =>
+        row.total_occurrences ? `${row.occurrences_completed}/${row.total_occurrences}` : row.occurrences_completed,
     },
     {
-      key: 'status',
-      label: 'Status',
-      render: (v: string) => (
-        <Badge variant={getStatusColor(v) as any}>{v}</Badge>
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={getStatusColor(row.status) as any}>{row.status}</Badge>
       ),
     },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <div className="flex gap-1">
           {row.status === 'active' && (
             <>

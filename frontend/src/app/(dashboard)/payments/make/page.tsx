@@ -77,12 +77,12 @@ export default function MakePaymentsPage() {
   }
 
   const columns = [
-    { key: 'payment_number', label: 'Payment #' },
-    { key: 'payment_date', label: 'Date' },
-    { key: 'vendor_id', label: 'Vendor' },
-    { key: 'amount', label: 'Amount', render: (v: number) => `$${v.toLocaleString()}` },
-    { key: 'payment_method', label: 'Method' },
-    { key: 'bill_id', label: 'Bill' },
+    { header: 'Payment #', accessor: 'payment_number' as const },
+    { header: 'Date', accessor: 'payment_date' as const },
+    { header: 'Vendor', accessor: 'vendor_id' as const },
+    { header: 'Amount', accessor: (row: any) => `$${row.amount?.toLocaleString()}` },
+    { header: 'Method', accessor: 'payment_method' as const },
+    { header: 'Bill', accessor: 'bill_id' as const },
   ]
 
   const bankAccounts = accounts?.data?.filter((a: any) =>

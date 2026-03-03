@@ -70,25 +70,22 @@ export default function AuditLogPage() {
 
   const columns = [
     {
-      key: 'timestamp',
-      label: 'Time',
-      render: (v: string) => new Date(v).toLocaleString(),
+      header: 'Time',
+      accessor: (row: any) => new Date(row.timestamp).toLocaleString(),
     },
-    { key: 'user_email', label: 'User' },
+    { header: 'User', accessor: 'user_email' as const },
     {
-      key: 'action',
-      label: 'Action',
-      render: (v: string) => (
-        <Badge className={getActionColor(v)}>{v}</Badge>
+      header: 'Action',
+      accessor: (row: any) => (
+        <Badge className={getActionColor(row.action)}>{row.action}</Badge>
       ),
     },
-    { key: 'entity_type', label: 'Entity Type' },
-    { key: 'entity_id', label: 'Entity ID' },
-    { key: 'description', label: 'Description' },
+    { header: 'Entity Type', accessor: 'entity_type' as const },
+    { header: 'Entity ID', accessor: 'entity_id' as const },
+    { header: 'Description', accessor: 'description' as const },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <Button variant="ghost" size="sm" onClick={() => setSelectedLog(row)}>
           <Eye className="h-4 w-4" />
         </Button>

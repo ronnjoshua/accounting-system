@@ -73,42 +73,36 @@ export default function BillDetailPage() {
   }
 
   const lineColumns = [
-    { key: 'description', label: 'Description' },
+    { header: 'Description', accessor: 'description' as const },
     {
-      key: 'quantity',
-      label: 'Qty',
-      render: (v: number) => v.toLocaleString(),
+      header: 'Qty',
+      accessor: (row: any) => row.quantity?.toLocaleString(),
     },
     {
-      key: 'unit_price',
-      label: 'Unit Price',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Unit Price',
+      accessor: (row: any) => `$${row.unit_price?.toLocaleString()}`,
     },
     {
-      key: 'tax_amount',
-      label: 'Tax',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Tax',
+      accessor: (row: any) => `$${row.tax_amount?.toLocaleString()}`,
     },
     {
-      key: 'line_total',
-      label: 'Total',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Total',
+      accessor: (row: any) => `$${row.line_total?.toLocaleString()}`,
     },
   ]
 
   const paymentColumns = [
-    { key: 'payment_number', label: 'Payment #' },
+    { header: 'Payment #', accessor: 'payment_number' as const },
     {
-      key: 'payment_date',
-      label: 'Date',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Date',
+      accessor: (row: any) => new Date(row.payment_date).toLocaleDateString(),
     },
     {
-      key: 'amount',
-      label: 'Amount',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Amount',
+      accessor: (row: any) => `$${row.amount?.toLocaleString()}`,
     },
-    { key: 'payment_method', label: 'Method' },
+    { header: 'Method', accessor: 'payment_method' as const },
   ]
 
   if (isLoading) {

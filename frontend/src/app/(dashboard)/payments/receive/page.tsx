@@ -77,12 +77,12 @@ export default function ReceivePaymentsPage() {
   }
 
   const columns = [
-    { key: 'payment_number', label: 'Payment #' },
-    { key: 'payment_date', label: 'Date' },
-    { key: 'customer_id', label: 'Customer' },
-    { key: 'amount', label: 'Amount', render: (v: number) => `$${v.toLocaleString()}` },
-    { key: 'payment_method', label: 'Method' },
-    { key: 'invoice_id', label: 'Invoice' },
+    { header: 'Payment #', accessor: 'payment_number' as const },
+    { header: 'Date', accessor: 'payment_date' as const },
+    { header: 'Customer', accessor: 'customer_id' as const },
+    { header: 'Amount', accessor: (row: any) => `$${row.amount?.toLocaleString()}` },
+    { header: 'Method', accessor: 'payment_method' as const },
+    { header: 'Invoice', accessor: 'invoice_id' as const },
   ]
 
   const bankAccounts = accounts?.data?.filter((a: any) =>

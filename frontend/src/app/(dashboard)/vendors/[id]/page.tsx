@@ -136,40 +136,34 @@ export default function VendorDetailPage() {
   }
 
   const billColumns = [
-    { key: 'bill_number', label: 'Bill #' },
+    { header: 'Bill #', accessor: 'bill_number' as const },
     {
-      key: 'bill_date',
-      label: 'Date',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Date',
+      accessor: (row: any) => new Date(row.bill_date).toLocaleDateString(),
     },
     {
-      key: 'due_date',
-      label: 'Due Date',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Due Date',
+      accessor: (row: any) => new Date(row.due_date).toLocaleDateString(),
     },
     {
-      key: 'total_amount',
-      label: 'Total',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Total',
+      accessor: (row: any) => `$${row.total_amount?.toLocaleString()}`,
     },
     {
-      key: 'amount_paid',
-      label: 'Paid',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Paid',
+      accessor: (row: any) => `$${row.amount_paid?.toLocaleString()}`,
     },
     {
-      key: 'balance_due',
-      label: 'Balance',
-      render: (v: number) => (
-        <span className={v > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>
-          ${v.toLocaleString()}
+      header: 'Balance',
+      accessor: (row: any) => (
+        <span className={row.balance_due > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>
+          ${row.balance_due?.toLocaleString()}
         </span>
       ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      render: (v: string) => {
+      header: 'Status',
+      accessor: (row: any) => {
         const colors: Record<string, string> = {
           draft: 'secondary',
           received: 'outline',
@@ -178,13 +172,12 @@ export default function VendorDetailPage() {
           overdue: 'destructive',
           void: 'secondary',
         }
-        return <Badge variant={colors[v] as any}>{v}</Badge>
+        return <Badge variant={colors[row.status] as any}>{row.status}</Badge>
       },
     },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <Link href={`/bills/${row.id}`}>
           <Button variant="ghost" size="sm">View</Button>
         </Link>
@@ -193,19 +186,17 @@ export default function VendorDetailPage() {
   ]
 
   const paymentColumns = [
-    { key: 'payment_number', label: 'Payment #' },
+    { header: 'Payment #', accessor: 'payment_number' as const },
     {
-      key: 'payment_date',
-      label: 'Date',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Date',
+      accessor: (row: any) => new Date(row.payment_date).toLocaleDateString(),
     },
     {
-      key: 'amount',
-      label: 'Amount',
-      render: (v: number) => `$${v.toLocaleString()}`,
+      header: 'Amount',
+      accessor: (row: any) => `$${row.amount?.toLocaleString()}`,
     },
-    { key: 'payment_method', label: 'Method' },
-    { key: 'reference', label: 'Reference' },
+    { header: 'Method', accessor: 'payment_method' as const },
+    { header: 'Reference', accessor: 'reference' as const },
   ]
 
   if (isLoading) {
