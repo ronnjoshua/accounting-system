@@ -1,7 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.api.v1.router import api_router
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -29,6 +34,8 @@ if settings.CORS_ORIGINS:
 # Remove duplicates while preserving order
 cors_origins = list(dict.fromkeys(cors_origins))
 
+logger.info(f"CORS allowed origins: {cors_origins}")
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +44,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Global exception handler to ensure CORS headers on errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    origin = request.headers.get("origin", "")
+
+    response = JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"}
+    )
+
+    # Add CORS headers if origin is allowed
+    if origin in cors_origins or "*" in cors_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+
+    return response
+
 
 # Include API router
 app.include_router(api_router, prefix="/api/v1")
