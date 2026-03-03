@@ -8,9 +8,27 @@ from app.core.database import get_db
 from app.core.dependencies import require_accountant, require_viewer
 from app.models.user import User
 from app.models.ar import Invoice, InvoiceLine, InvoiceStatus
+from app.models.accounting import Account
 from app.schemas.ar import InvoiceCreate, InvoiceUpdate, InvoiceResponse
 
 router = APIRouter()
+
+
+def get_default_revenue_account(db: Session) -> int:
+    """Get a default revenue account for invoice lines"""
+    # Try to find a Sales Revenue account
+    result = db.execute(
+        select(Account).where(Account.code.like("4%")).where(Account.is_active == True).limit(1)
+    )
+    account = result.scalar_one_or_none()
+    if account:
+        return account.id
+    # Fallback to any active account
+    result = db.execute(select(Account).where(Account.is_active == True).limit(1))
+    account = result.scalar_one_or_none()
+    if account:
+        return account.id
+    raise HTTPException(status_code=400, detail="No accounts found. Please create accounts first.")
 
 
 def get_next_invoice_number(db: Session) -> str:
@@ -80,12 +98,22 @@ def create_invoice(
         updated_by_id=current_user.id
     )
 
+    # Get default account if needed
+    default_account_id = None
+
     for line_data in data.lines:
         line_subtotal = line_data.quantity * line_data.unit_price
         line_discount = line_subtotal * (line_data.discount_percent / 100)
         line_after_discount = line_subtotal - line_discount
         line_tax = line_after_discount * (line_data.tax_percent / 100)
         line_total = line_after_discount + line_tax
+
+        # Use provided account_id or get default
+        account_id = line_data.account_id
+        if account_id is None:
+            if default_account_id is None:
+                default_account_id = get_default_revenue_account(db)
+            account_id = default_account_id
 
         line = InvoiceLine(
             product_id=line_data.product_id,
@@ -95,7 +123,7 @@ def create_invoice(
             discount_percent=line_data.discount_percent,
             tax_percent=line_data.tax_percent,
             line_total=line_total,
-            account_id=line_data.account_id
+            account_id=account_id
         )
         invoice.lines.append(line)
 

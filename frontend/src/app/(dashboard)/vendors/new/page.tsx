@@ -32,13 +32,13 @@ export default function NewVendorPage() {
       name: formData.get('name'),
       email: formData.get('email') || null,
       phone: formData.get('phone') || null,
-      address: formData.get('address') || null,
+      address_line1: formData.get('address') || null,
       city: formData.get('city') || null,
       state: formData.get('state') || null,
       postal_code: formData.get('postal_code') || null,
       country: formData.get('country') || null,
       tax_id: formData.get('tax_id') || null,
-      payment_terms: parseInt(formData.get('payment_terms') as string) || 30,
+      payment_terms_days: parseInt(formData.get('payment_terms') as string) || 30,
     })
   }
 

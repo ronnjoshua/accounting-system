@@ -77,7 +77,7 @@ class InvoiceLineCreate(BaseModel):
     unit_price: Decimal
     discount_percent: Decimal = Decimal("0")
     tax_percent: Decimal = Decimal("0")
-    account_id: int
+    account_id: Optional[int] = None  # Will use default revenue account if not provided
 
 
 class InvoiceLineResponse(BaseModel):

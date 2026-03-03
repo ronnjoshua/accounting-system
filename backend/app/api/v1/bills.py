@@ -8,6 +8,7 @@ from app.core.database import get_db
 from app.core.dependencies import require_accountant, require_viewer
 from app.models.user import User
 from app.models.ap import Bill, BillLine, BillStatus
+from app.models.accounting import Account
 from app.schemas.ap import BillCreate, BillUpdate, BillResponse
 
 router = APIRouter()
@@ -17,6 +18,30 @@ def get_next_bill_number(db: Session) -> str:
     result = db.execute(select(func.count(Bill.id)))
     count = result.scalar() or 0
     return f"BILL-{count + 1:06d}"
+
+
+def get_default_expense_account(db: Session) -> int:
+    """Get a default expense account for bill lines"""
+    # Try to find an expense account (typically starts with 5 or 6)
+    result = db.execute(
+        select(Account).where(Account.code.like("5%")).where(Account.is_active == True).limit(1)
+    )
+    account = result.scalar_one_or_none()
+    if account:
+        return account.id
+    # Try 6xxx accounts
+    result = db.execute(
+        select(Account).where(Account.code.like("6%")).where(Account.is_active == True).limit(1)
+    )
+    account = result.scalar_one_or_none()
+    if account:
+        return account.id
+    # Fallback to any active account
+    result = db.execute(select(Account).where(Account.is_active == True).limit(1))
+    account = result.scalar_one_or_none()
+    if account:
+        return account.id
+    raise HTTPException(status_code=400, detail="No accounts found. Please create accounts first.")
 
 
 @router.get("", response_model=List[BillResponse])
@@ -73,12 +98,22 @@ def create_bill(
         updated_by_id=current_user.id
     )
 
+    # Get default account if needed
+    default_account_id = None
+
     for line_data in data.lines:
         line_subtotal = line_data.quantity * line_data.unit_price
         line_discount = line_subtotal * (line_data.discount_percent / 100)
         line_after_discount = line_subtotal - line_discount
         line_tax = line_after_discount * (line_data.tax_percent / 100)
         line_total = line_after_discount + line_tax
+
+        # Use provided account_id or get default
+        account_id = line_data.account_id
+        if account_id is None:
+            if default_account_id is None:
+                default_account_id = get_default_expense_account(db)
+            account_id = default_account_id
 
         line = BillLine(
             product_id=line_data.product_id,
@@ -88,7 +123,7 @@ def create_bill(
             discount_percent=line_data.discount_percent,
             tax_percent=line_data.tax_percent,
             line_total=line_total,
-            account_id=line_data.account_id
+            account_id=account_id
         )
         bill.lines.append(line)
 

@@ -32,14 +32,14 @@ export default function NewCustomerPage() {
       name: formData.get('name'),
       email: formData.get('email') || null,
       phone: formData.get('phone') || null,
-      address: formData.get('address') || null,
-      city: formData.get('city') || null,
-      state: formData.get('state') || null,
-      postal_code: formData.get('postal_code') || null,
-      country: formData.get('country') || null,
+      billing_address_line1: formData.get('address') || null,
+      billing_city: formData.get('city') || null,
+      billing_state: formData.get('state') || null,
+      billing_postal_code: formData.get('postal_code') || null,
+      billing_country: formData.get('country') || null,
       tax_id: formData.get('tax_id') || null,
-      credit_limit: parseFloat(formData.get('credit_limit') as string) || 0,
-      payment_terms: parseInt(formData.get('payment_terms') as string) || 30,
+      credit_limit: parseFloat(formData.get('credit_limit') as string) || null,
+      payment_terms_days: parseInt(formData.get('payment_terms') as string) || 30,
     })
   }
 
