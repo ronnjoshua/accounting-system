@@ -4,8 +4,12 @@ from app.core.config import settings
 
 # Normalize database URL for psycopg2
 database_url = settings.DATABASE_URL
+# Handle various PostgreSQL URL formats
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+# Remove async driver specification if present
+database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+database_url = database_url.replace("postgres+asyncpg://", "postgresql://")
 
 engine = create_engine(
     database_url,
