@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import date
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from app.core.database import get_db
 from app.core.dependencies import require_accountant, require_viewer
@@ -13,8 +13,8 @@ from app.schemas.ar import InvoiceCreate, InvoiceUpdate, InvoiceResponse
 router = APIRouter()
 
 
-async def get_next_invoice_number(db: AsyncSession) -> str:
-    result = await db.execute(select(func.count(Invoice.id)))
+def get_next_invoice_number(db: Session) -> str:
+    result = db.execute(select(func.count(Invoice.id)))
     count = result.scalar() or 0
     return f"INV-{count + 1:06d}"
 
@@ -28,7 +28,7 @@ def calculate_line_total(line_data) -> Decimal:
 
 
 @router.get("", response_model=List[InvoiceResponse])
-async def list_invoices(
+def list_invoices(
     status: Optional[InvoiceStatus] = None,
     customer_id: Optional[int] = None,
     start_date: Optional[date] = None,
@@ -36,7 +36,7 @@ async def list_invoices(
     skip: int = 0,
     limit: int = 100,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     query = select(Invoice)
 
@@ -50,19 +50,18 @@ async def list_invoices(
         query = query.where(Invoice.invoice_date <= end_date)
 
     query = query.order_by(Invoice.invoice_date.desc()).offset(skip).limit(limit)
-    result = await db.execute(query)
+    result = db.execute(query)
     return result.scalars().all()
 
 
 @router.post("", response_model=InvoiceResponse)
-async def create_invoice(
+def create_invoice(
     data: InvoiceCreate,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    invoice_number = await get_next_invoice_number(db)
+    invoice_number = get_next_invoice_number(db)
 
-    # Calculate totals
     subtotal = Decimal("0")
     tax_amount = Decimal("0")
     discount_amount = Decimal("0")
@@ -111,18 +110,18 @@ async def create_invoice(
     invoice.balance_due = invoice.total
 
     db.add(invoice)
-    await db.commit()
-    await db.refresh(invoice)
+    db.commit()
+    db.refresh(invoice)
     return invoice
 
 
 @router.get("/{invoice_id}", response_model=InvoiceResponse)
-async def get_invoice(
+def get_invoice(
     invoice_id: int,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Invoice).where(Invoice.id == invoice_id))
+    result = db.execute(select(Invoice).where(Invoice.id == invoice_id))
     invoice = result.scalar_one_or_none()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
@@ -130,13 +129,13 @@ async def get_invoice(
 
 
 @router.patch("/{invoice_id}", response_model=InvoiceResponse)
-async def update_invoice(
+def update_invoice(
     invoice_id: int,
     data: InvoiceUpdate,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Invoice).where(Invoice.id == invoice_id))
+    result = db.execute(select(Invoice).where(Invoice.id == invoice_id))
     invoice = result.scalar_one_or_none()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
@@ -147,10 +146,9 @@ async def update_invoice(
             detail="Only draft invoices can be modified"
         )
 
-    # Handle lines update
     if data.lines is not None:
         for line in invoice.lines:
-            await db.delete(line)
+            db.delete(line)
 
         subtotal = Decimal("0")
         tax_amount = Decimal("0")
@@ -186,23 +184,23 @@ async def update_invoice(
         invoice.total = subtotal - discount_amount + tax_amount
         invoice.balance_due = invoice.total - invoice.amount_paid
 
-    update_data = data.model_dump(exclude_unset=True, exclude={"lines"})
+    update_data = data.dict(exclude_unset=True, exclude={"lines"})
     for field, value in update_data.items():
         setattr(invoice, field, value)
 
     invoice.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(invoice)
+    db.commit()
+    db.refresh(invoice)
     return invoice
 
 
 @router.post("/{invoice_id}/send", response_model=InvoiceResponse)
-async def send_invoice(
+def send_invoice(
     invoice_id: int,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Invoice).where(Invoice.id == invoice_id))
+    result = db.execute(select(Invoice).where(Invoice.id == invoice_id))
     invoice = result.scalar_one_or_none()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
@@ -212,18 +210,18 @@ async def send_invoice(
 
     invoice.status = InvoiceStatus.SENT
     invoice.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(invoice)
+    db.commit()
+    db.refresh(invoice)
     return invoice
 
 
 @router.post("/{invoice_id}/void", response_model=InvoiceResponse)
-async def void_invoice(
+def void_invoice(
     invoice_id: int,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Invoice).where(Invoice.id == invoice_id))
+    result = db.execute(select(Invoice).where(Invoice.id == invoice_id))
     invoice = result.scalar_one_or_none()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
@@ -236,6 +234,6 @@ async def void_invoice(
 
     invoice.status = InvoiceStatus.VOID
     invoice.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(invoice)
+    db.commit()
+    db.refresh(invoice)
     return invoice

@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from app.models.audit import AuditLog
 
 
-async def create_audit_log(
-    db: AsyncSession,
+def create_audit_log(
+    db: Session,
     action: str,
     entity_type: str,
     entity_id: Optional[int] = None,
@@ -30,5 +30,5 @@ async def create_audit_log(
         description=description
     )
     db.add(log)
-    await db.commit()
+    db.commit()
     return log

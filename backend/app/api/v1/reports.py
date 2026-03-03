@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import date
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select, func, and_
 from app.core.database import get_db
 from app.core.dependencies import require_viewer
@@ -16,22 +16,21 @@ router = APIRouter()
 
 
 @router.get("/trial-balance")
-async def trial_balance_report(
+def trial_balance_report(
     as_of_date: Optional[date] = None,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    return await get_trial_balance(db)
+    return get_trial_balance(db)
 
 
 @router.get("/balance-sheet")
-async def balance_sheet_report(
+def balance_sheet_report(
     as_of_date: Optional[date] = None,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    # Get all accounts grouped by category
-    result = await db.execute(
+    result = db.execute(
         select(Account, AccountType)
         .join(AccountType, Account.account_type_id == AccountType.id)
         .where(Account.is_active == True)
@@ -86,13 +85,13 @@ async def balance_sheet_report(
 
 
 @router.get("/income-statement")
-async def income_statement_report(
+def income_statement_report(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
+    result = db.execute(
         select(Account, AccountType)
         .join(AccountType, Account.account_type_id == AccountType.id)
         .where(Account.is_active == True)
@@ -142,14 +141,14 @@ async def income_statement_report(
 
 
 @router.get("/ar-aging")
-async def ar_aging_report(
+def ar_aging_report(
     as_of_date: Optional[date] = None,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     today = as_of_date or date.today()
 
-    result = await db.execute(
+    result = db.execute(
         select(Invoice, Customer)
         .join(Customer, Invoice.customer_id == Customer.id)
         .where(
@@ -214,14 +213,14 @@ async def ar_aging_report(
 
 
 @router.get("/ap-aging")
-async def ap_aging_report(
+def ap_aging_report(
     as_of_date: Optional[date] = None,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     today = as_of_date or date.today()
 
-    result = await db.execute(
+    result = db.execute(
         select(Bill, Vendor)
         .join(Vendor, Bill.vendor_id == Vendor.id)
         .where(
@@ -286,33 +285,33 @@ async def ap_aging_report(
 
 
 @router.get("/dashboard")
-async def dashboard_summary(
+def dashboard_summary(
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     # Total AR
-    ar_result = await db.execute(
+    ar_result = db.execute(
         select(func.sum(Invoice.balance_due))
         .where(Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE]))
     )
     total_ar = ar_result.scalar() or Decimal("0")
 
     # Total AP
-    ap_result = await db.execute(
+    ap_result = db.execute(
         select(func.sum(Bill.balance_due))
         .where(Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID, BillStatus.OVERDUE]))
     )
     total_ap = ap_result.scalar() or Decimal("0")
 
     # Count of open invoices
-    invoice_count = await db.execute(
+    invoice_count = db.execute(
         select(func.count(Invoice.id))
         .where(Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID]))
     )
     open_invoices = invoice_count.scalar() or 0
 
     # Count of open bills
-    bill_count = await db.execute(
+    bill_count = db.execute(
         select(func.count(Bill.id))
         .where(Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID]))
     )
@@ -320,7 +319,7 @@ async def dashboard_summary(
 
     # Overdue invoices
     today = date.today()
-    overdue_invoices_result = await db.execute(
+    overdue_invoices_result = db.execute(
         select(func.count(Invoice.id))
         .where(
             Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID]),
@@ -330,7 +329,7 @@ async def dashboard_summary(
     overdue_invoices = overdue_invoices_result.scalar() or 0
 
     # Overdue bills
-    overdue_bills_result = await db.execute(
+    overdue_bills_result = db.execute(
         select(func.count(Bill.id))
         .where(
             Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID]),

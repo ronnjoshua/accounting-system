@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.schemas.user import (
@@ -17,12 +17,12 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(
+def login(
     data: UserLogin,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    user = await authenticate_user(db, data.email, data.password)
+    user = authenticate_user(db, data.email, data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -36,7 +36,7 @@ async def login(
         )
 
     # Create audit log
-    await create_audit_log(
+    create_audit_log(
         db,
         action="login",
         entity_type="user",
@@ -48,14 +48,14 @@ async def login(
     )
 
     tokens = generate_tokens(user)
-    return TokenResponse(**tokens, user=UserResponse.model_validate(user))
+    return TokenResponse(**tokens, user=UserResponse.from_orm(user))
 
 
 @router.post("/invite", response_model=UserInviteResponse)
-async def invite_user(
+def invite_user(
     data: UserInviteCreate,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     # Only admins can invite
     user_roles = [role.name for role in current_user.roles]
@@ -66,7 +66,7 @@ async def invite_user(
         )
 
     try:
-        invite = await create_invite(
+        invite = create_invite(
             db, data.email, data.role_id, current_user.id
         )
         return invite
@@ -78,22 +78,22 @@ async def invite_user(
 
 
 @router.post("/accept-invite", response_model=TokenResponse)
-async def accept_invite(
+def accept_invite(
     data: AcceptInvite,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    invite = await get_invite_by_token(db, data.token)
+    invite = get_invite_by_token(db, data.token)
     if not invite:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired invite token"
         )
 
-    user = await create_user_from_invite(db, invite, data)
+    user = create_user_from_invite(db, invite, data)
 
     # Create audit log
-    await create_audit_log(
+    create_audit_log(
         db,
         action="accept_invite",
         entity_type="user",
@@ -104,22 +104,22 @@ async def accept_invite(
     )
 
     tokens = generate_tokens(user)
-    return TokenResponse(**tokens, user=UserResponse.model_validate(user))
+    return TokenResponse(**tokens, user=UserResponse.from_orm(user))
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(
+def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
     return current_user
 
 
 @router.get("/verify-invite/{token}")
-async def verify_invite(
+def verify_invite(
     token: str,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    invite = await get_invite_by_token(db, token)
+    invite = get_invite_by_token(db, token)
     if not invite:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

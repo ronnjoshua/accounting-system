@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import Optional
 from app.core.database import get_db
@@ -10,9 +10,9 @@ from app.models.user import User, Role
 security = HTTPBearer()
 
 
-async def get_current_user(
+def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ) -> User:
     token = credentials.credentials
     payload = decode_token(token)
@@ -39,7 +39,7 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    result = await db.execute(select(User).where(User.id == int(user_id)))
+    result = db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
 
     if user is None:
@@ -58,7 +58,7 @@ async def get_current_user(
     return user
 
 
-async def get_current_active_user(
+def get_current_active_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
     if not current_user.is_active:
@@ -73,13 +73,13 @@ class RoleChecker:
     def __init__(self, allowed_roles: list[str]):
         self.allowed_roles = allowed_roles
 
-    async def __call__(
+    def __call__(
         self,
         current_user: User = Depends(get_current_user),
-        db: AsyncSession = Depends(get_db)
+        db: Session = Depends(get_db)
     ) -> User:
         # Load user roles
-        result = await db.execute(
+        result = db.execute(
             select(Role).join(User.roles).where(User.id == current_user.id)
         )
         user_roles = result.scalars().all()

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.models.user import User, Role, UserInvite
 from app.schemas.user import UserCreate, AcceptInvite
@@ -11,10 +11,10 @@ from app.core.security import (
 )
 
 
-async def authenticate_user(
-    db: AsyncSession, email: str, password: str
+def authenticate_user(
+    db: Session, email: str, password: str
 ) -> Optional[User]:
-    result = await db.execute(select(User).where(User.email == email))
+    result = db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
     if not user:
@@ -24,13 +24,13 @@ async def authenticate_user(
 
     # Update last login
     user.last_login = datetime.utcnow()
-    await db.commit()
+    db.commit()
 
     return user
 
 
-async def create_user_from_invite(
-    db: AsyncSession, invite: UserInvite, data: AcceptInvite
+def create_user_from_invite(
+    db: Session, invite: UserInvite, data: AcceptInvite
 ) -> User:
     user = User(
         email=invite.email,
@@ -41,7 +41,7 @@ async def create_user_from_invite(
     )
 
     # Assign role from invite
-    result = await db.execute(select(Role).where(Role.id == invite.role_id))
+    result = db.execute(select(Role).where(Role.id == invite.role_id))
     role = result.scalar_one_or_none()
     if role:
         user.roles.append(role)
@@ -51,30 +51,30 @@ async def create_user_from_invite(
     # Mark invite as accepted
     invite.accepted_at = datetime.utcnow()
 
-    await db.commit()
-    await db.refresh(user)
+    db.commit()
+    db.refresh(user)
     return user
 
 
-async def create_invite(
-    db: AsyncSession,
+def create_invite(
+    db: Session,
     email: str,
     role_id: int,
     invited_by_id: int,
     expires_in_days: int = 7
 ) -> UserInvite:
     # Check if user already exists
-    result = await db.execute(select(User).where(User.email == email))
+    result = db.execute(select(User).where(User.email == email))
     if result.scalar_one_or_none():
         raise ValueError("User with this email already exists")
 
     # Check if invite already exists
-    result = await db.execute(select(UserInvite).where(UserInvite.email == email))
+    result = db.execute(select(UserInvite).where(UserInvite.email == email))
     existing_invite = result.scalar_one_or_none()
     if existing_invite and not existing_invite.accepted_at:
         # Delete old invite
-        await db.delete(existing_invite)
-        await db.commit()
+        db.delete(existing_invite)
+        db.commit()
 
     invite = UserInvite(
         email=email,
@@ -84,13 +84,13 @@ async def create_invite(
         expires_at=datetime.utcnow() + timedelta(days=expires_in_days)
     )
     db.add(invite)
-    await db.commit()
-    await db.refresh(invite)
+    db.commit()
+    db.refresh(invite)
     return invite
 
 
-async def get_invite_by_token(db: AsyncSession, token: str) -> Optional[UserInvite]:
-    result = await db.execute(
+def get_invite_by_token(db: Session, token: str) -> Optional[UserInvite]:
+    result = db.execute(
         select(UserInvite).where(
             UserInvite.token == token,
             UserInvite.accepted_at.is_(None),

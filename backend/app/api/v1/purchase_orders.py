@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import date
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from app.core.database import get_db
 from app.core.dependencies import require_accountant, require_viewer
@@ -15,14 +15,14 @@ from app.schemas.inventory import (
 router = APIRouter()
 
 
-async def get_next_po_number(db: AsyncSession) -> str:
-    result = await db.execute(select(func.count(PurchaseOrder.id)))
+def get_next_po_number(db: Session) -> str:
+    result = db.execute(select(func.count(PurchaseOrder.id)))
     count = result.scalar() or 0
     return f"PO-{count + 1:06d}"
 
 
 @router.get("", response_model=List[PurchaseOrderResponse])
-async def list_purchase_orders(
+def list_purchase_orders(
     status: Optional[PurchaseOrderStatus] = None,
     vendor_id: Optional[int] = None,
     start_date: Optional[date] = None,
@@ -30,7 +30,7 @@ async def list_purchase_orders(
     skip: int = 0,
     limit: int = 100,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     query = select(PurchaseOrder)
 
@@ -44,17 +44,17 @@ async def list_purchase_orders(
         query = query.where(PurchaseOrder.order_date <= end_date)
 
     query = query.order_by(PurchaseOrder.order_date.desc()).offset(skip).limit(limit)
-    result = await db.execute(query)
+    result = db.execute(query)
     return result.scalars().all()
 
 
 @router.post("", response_model=PurchaseOrderResponse)
-async def create_purchase_order(
+def create_purchase_order(
     data: PurchaseOrderCreate,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    po_number = await get_next_po_number(db)
+    po_number = get_next_po_number(db)
 
     subtotal = Decimal("0")
     tax_amount = Decimal("0")
@@ -95,18 +95,18 @@ async def create_purchase_order(
     po.total = subtotal + tax_amount
 
     db.add(po)
-    await db.commit()
-    await db.refresh(po)
+    db.commit()
+    db.refresh(po)
     return po
 
 
 @router.get("/{po_id}", response_model=PurchaseOrderResponse)
-async def get_purchase_order(
+def get_purchase_order(
     po_id: int,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
+    result = db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
     po = result.scalar_one_or_none()
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
@@ -114,13 +114,13 @@ async def get_purchase_order(
 
 
 @router.patch("/{po_id}", response_model=PurchaseOrderResponse)
-async def update_purchase_order(
+def update_purchase_order(
     po_id: int,
     data: PurchaseOrderUpdate,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
+    result = db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
     po = result.scalar_one_or_none()
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
@@ -133,7 +133,7 @@ async def update_purchase_order(
 
     if data.lines is not None:
         for line in po.lines:
-            await db.delete(line)
+            db.delete(line)
 
         subtotal = Decimal("0")
         tax_amount = Decimal("0")
@@ -161,23 +161,23 @@ async def update_purchase_order(
         po.tax_amount = tax_amount
         po.total = subtotal + tax_amount
 
-    update_data = data.model_dump(exclude_unset=True, exclude={"lines"})
+    update_data = data.dict(exclude_unset=True, exclude={"lines"})
     for field, value in update_data.items():
         setattr(po, field, value)
 
     po.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(po)
+    db.commit()
+    db.refresh(po)
     return po
 
 
 @router.post("/{po_id}/send", response_model=PurchaseOrderResponse)
-async def send_purchase_order(
+def send_purchase_order(
     po_id: int,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
+    result = db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
     po = result.scalar_one_or_none()
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
@@ -187,18 +187,18 @@ async def send_purchase_order(
 
     po.status = PurchaseOrderStatus.SENT
     po.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(po)
+    db.commit()
+    db.refresh(po)
     return po
 
 
 @router.post("/{po_id}/cancel", response_model=PurchaseOrderResponse)
-async def cancel_purchase_order(
+def cancel_purchase_order(
     po_id: int,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
+    result = db.execute(select(PurchaseOrder).where(PurchaseOrder.id == po_id))
     po = result.scalar_one_or_none()
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
@@ -208,6 +208,6 @@ async def cancel_purchase_order(
 
     po.status = PurchaseOrderStatus.CANCELLED
     po.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(po)
+    db.commit()
+    db.refresh(po)
     return po

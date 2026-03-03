@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from app.models.accounting import (
     Account, AccountType, JournalEntry, JournalEntryLine,
@@ -10,16 +10,16 @@ from app.models.accounting import (
 from app.schemas.accounting import JournalEntryCreate, JournalEntryLineCreate
 
 
-async def get_next_journal_entry_number(db: AsyncSession) -> str:
-    result = await db.execute(
+def get_next_journal_entry_number(db: Session) -> str:
+    result = db.execute(
         select(func.count(JournalEntry.id))
     )
     count = result.scalar() or 0
     return f"JE-{count + 1:06d}"
 
 
-async def create_journal_entry(
-    db: AsyncSession,
+def create_journal_entry(
+    db: Session,
     data: JournalEntryCreate,
     created_by_id: int,
     source_type: Optional[str] = None,
@@ -35,7 +35,7 @@ async def create_journal_entry(
     if total_debit == 0:
         raise ValueError("Journal entry must have at least one debit/credit")
 
-    entry_number = await get_next_journal_entry_number(db)
+    entry_number = get_next_journal_entry_number(db)
 
     entry = JournalEntry(
         entry_number=entry_number,
@@ -67,13 +67,13 @@ async def create_journal_entry(
         entry.lines.append(line)
 
     db.add(entry)
-    await db.commit()
-    await db.refresh(entry)
+    db.commit()
+    db.refresh(entry)
     return entry
 
 
-async def post_journal_entry(
-    db: AsyncSession,
+def post_journal_entry(
+    db: Session,
     entry: JournalEntry,
     posted_by_id: int
 ) -> JournalEntry:
@@ -82,13 +82,13 @@ async def post_journal_entry(
 
     # Update account balances
     for line in entry.lines:
-        result = await db.execute(
+        result = db.execute(
             select(Account).where(Account.id == line.account_id)
         )
         account = result.scalar_one()
 
         # Get account type to determine normal balance
-        result = await db.execute(
+        result = db.execute(
             select(AccountType).where(AccountType.id == account.account_type_id)
         )
         account_type = result.scalar_one()
@@ -104,13 +104,13 @@ async def post_journal_entry(
     entry.posted_at = datetime.utcnow()
     entry.posted_by_id = posted_by_id
 
-    await db.commit()
-    await db.refresh(entry)
+    db.commit()
+    db.refresh(entry)
     return entry
 
 
-async def void_journal_entry(
-    db: AsyncSession,
+def void_journal_entry(
+    db: Session,
     entry: JournalEntry,
     voided_by_id: int,
     reason: str
@@ -121,12 +121,12 @@ async def void_journal_entry(
     if entry.status == JournalEntryStatus.POSTED:
         # Reverse the account balance updates
         for line in entry.lines:
-            result = await db.execute(
+            result = db.execute(
                 select(Account).where(Account.id == line.account_id)
             )
             account = result.scalar_one()
 
-            result = await db.execute(
+            result = db.execute(
                 select(AccountType).where(AccountType.id == account.account_type_id)
             )
             account_type = result.scalar_one()
@@ -142,17 +142,17 @@ async def void_journal_entry(
     entry.voided_by_id = voided_by_id
     entry.void_reason = reason
 
-    await db.commit()
-    await db.refresh(entry)
+    db.commit()
+    db.refresh(entry)
     return entry
 
 
-async def get_account_balance(
-    db: AsyncSession,
+def get_account_balance(
+    db: Session,
     account_id: int,
     as_of_date: Optional[datetime] = None
 ) -> Decimal:
-    result = await db.execute(
+    result = db.execute(
         select(Account).where(Account.id == account_id)
     )
     account = result.scalar_one_or_none()
@@ -162,8 +162,8 @@ async def get_account_balance(
     return account.current_balance
 
 
-async def get_trial_balance(db: AsyncSession) -> List[dict]:
-    result = await db.execute(
+def get_trial_balance(db: Session) -> List[dict]:
+    result = db.execute(
         select(Account, AccountType)
         .join(AccountType, Account.account_type_id == AccountType.id)
         .where(Account.is_active == True)

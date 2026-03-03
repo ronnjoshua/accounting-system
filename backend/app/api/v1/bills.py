@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import date
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from app.core.database import get_db
 from app.core.dependencies import require_accountant, require_viewer
@@ -13,14 +13,14 @@ from app.schemas.ap import BillCreate, BillUpdate, BillResponse
 router = APIRouter()
 
 
-async def get_next_bill_number(db: AsyncSession) -> str:
-    result = await db.execute(select(func.count(Bill.id)))
+def get_next_bill_number(db: Session) -> str:
+    result = db.execute(select(func.count(Bill.id)))
     count = result.scalar() or 0
     return f"BILL-{count + 1:06d}"
 
 
 @router.get("", response_model=List[BillResponse])
-async def list_bills(
+def list_bills(
     status: Optional[BillStatus] = None,
     vendor_id: Optional[int] = None,
     start_date: Optional[date] = None,
@@ -28,7 +28,7 @@ async def list_bills(
     skip: int = 0,
     limit: int = 100,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     query = select(Bill)
 
@@ -42,17 +42,17 @@ async def list_bills(
         query = query.where(Bill.bill_date <= end_date)
 
     query = query.order_by(Bill.bill_date.desc()).offset(skip).limit(limit)
-    result = await db.execute(query)
+    result = db.execute(query)
     return result.scalars().all()
 
 
 @router.post("", response_model=BillResponse)
-async def create_bill(
+def create_bill(
     data: BillCreate,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    bill_number = await get_next_bill_number(db)
+    bill_number = get_next_bill_number(db)
 
     subtotal = Decimal("0")
     tax_amount = Decimal("0")
@@ -103,18 +103,18 @@ async def create_bill(
     bill.balance_due = bill.total
 
     db.add(bill)
-    await db.commit()
-    await db.refresh(bill)
+    db.commit()
+    db.refresh(bill)
     return bill
 
 
 @router.get("/{bill_id}", response_model=BillResponse)
-async def get_bill(
+def get_bill(
     bill_id: int,
     current_user: User = Depends(require_viewer),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Bill).where(Bill.id == bill_id))
+    result = db.execute(select(Bill).where(Bill.id == bill_id))
     bill = result.scalar_one_or_none()
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
@@ -122,13 +122,13 @@ async def get_bill(
 
 
 @router.patch("/{bill_id}", response_model=BillResponse)
-async def update_bill(
+def update_bill(
     bill_id: int,
     data: BillUpdate,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Bill).where(Bill.id == bill_id))
+    result = db.execute(select(Bill).where(Bill.id == bill_id))
     bill = result.scalar_one_or_none()
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
@@ -141,7 +141,7 @@ async def update_bill(
 
     if data.lines is not None:
         for line in bill.lines:
-            await db.delete(line)
+            db.delete(line)
 
         subtotal = Decimal("0")
         tax_amount = Decimal("0")
@@ -177,23 +177,23 @@ async def update_bill(
         bill.total = subtotal - discount_amount + tax_amount
         bill.balance_due = bill.total - bill.amount_paid
 
-    update_data = data.model_dump(exclude_unset=True, exclude={"lines"})
+    update_data = data.dict(exclude_unset=True, exclude={"lines"})
     for field, value in update_data.items():
         setattr(bill, field, value)
 
     bill.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(bill)
+    db.commit()
+    db.refresh(bill)
     return bill
 
 
 @router.post("/{bill_id}/receive", response_model=BillResponse)
-async def receive_bill(
+def receive_bill(
     bill_id: int,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Bill).where(Bill.id == bill_id))
+    result = db.execute(select(Bill).where(Bill.id == bill_id))
     bill = result.scalar_one_or_none()
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
@@ -203,18 +203,18 @@ async def receive_bill(
 
     bill.status = BillStatus.RECEIVED
     bill.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(bill)
+    db.commit()
+    db.refresh(bill)
     return bill
 
 
 @router.post("/{bill_id}/void", response_model=BillResponse)
-async def void_bill(
+def void_bill(
     bill_id: int,
     current_user: User = Depends(require_accountant),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Bill).where(Bill.id == bill_id))
+    result = db.execute(select(Bill).where(Bill.id == bill_id))
     bill = result.scalar_one_or_none()
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
@@ -227,6 +227,6 @@ async def void_bill(
 
     bill.status = BillStatus.VOID
     bill.updated_by_id = current_user.id
-    await db.commit()
-    await db.refresh(bill)
+    db.commit()
+    db.refresh(bill)
     return bill
