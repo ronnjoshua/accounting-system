@@ -38,7 +38,7 @@ export default function ReportsPage() {
         case 'ap-aging':
           return (await reportsApi.apAging()).data
         case 'general-ledger':
-          return (await reportsApi.generalLedger(undefined, dateFilters.start_date, dateFilters.end_date)).data
+          return (await reportsApi.generalLedger({ start_date: dateFilters.start_date, end_date: dateFilters.end_date })).data
         case 'cash-flow':
           return (await reportsApi.cashFlow(dateFilters.start_date, dateFilters.end_date)).data
         default:
