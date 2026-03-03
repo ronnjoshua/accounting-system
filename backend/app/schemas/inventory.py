@@ -104,8 +104,44 @@ class StockMovementCreate(BaseModel):
     movement_date: date
     quantity: Decimal
     unit_cost: Decimal
+    source_type: Optional[str] = None
+    source_id: Optional[int] = None
     destination_warehouse_id: Optional[int] = None
     notes: Optional[str] = None
+
+
+class StockAdjustmentCreate(BaseModel):
+    product_id: int
+    warehouse_id: int
+    adjustment_date: date
+    adjustment_quantity: Decimal  # Positive for increase, negative for decrease
+    unit_cost: Decimal
+    reason: str
+
+
+class StockTransferCreate(BaseModel):
+    product_id: int
+    from_warehouse_id: int
+    to_warehouse_id: int
+    transfer_date: date
+    quantity: Decimal
+    notes: Optional[str] = None
+
+
+class WarehouseStockItem(BaseModel):
+    warehouse_id: int
+    warehouse_name: str
+    quantity: Decimal
+
+
+class ProductStockResponse(BaseModel):
+    product_id: int
+    product_code: str
+    product_name: str
+    total_quantity: Decimal
+    average_cost: Decimal
+    total_value: Decimal
+    warehouse_breakdown: List[WarehouseStockItem]
 
 
 class StockMovementResponse(BaseModel):
@@ -119,6 +155,8 @@ class StockMovementResponse(BaseModel):
     unit_cost: Decimal
     total_cost: Decimal
     quantity_after: Decimal
+    source_type: Optional[str] = None
+    source_id: Optional[int] = None
     destination_warehouse_id: Optional[int] = None
     notes: Optional[str] = None
     created_at: datetime

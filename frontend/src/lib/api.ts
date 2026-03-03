@@ -185,4 +185,150 @@ export const reportsApi = {
   apAging: (asOfDate?: string) =>
     api.get('/reports/ap-aging', { params: { as_of_date: asOfDate } }),
   dashboard: () => api.get('/reports/dashboard'),
+  generalLedger: (params?: { account_id?: number; start_date?: string; end_date?: string }) =>
+    api.get('/reports/general-ledger', { params }),
+  cashFlow: (startDate?: string, endDate?: string) =>
+    api.get('/reports/cash-flow', { params: { start_date: startDate, end_date: endDate } }),
+  accountTransactions: (accountId: number, params?: { start_date?: string; end_date?: string }) =>
+    api.get(`/reports/account-transactions/${accountId}`, { params }),
+}
+
+// Payments API
+export const paymentsApi = {
+  // Customer Payments
+  listCustomerPayments: (params?: { customer_id?: number; start_date?: string; end_date?: string }) =>
+    api.get('/payments/customer-payments', { params }),
+  createCustomerPayment: (data: any) => api.post('/payments/customer-payments', data),
+  getCustomerPayment: (id: number) => api.get(`/payments/customer-payments/${id}`),
+
+  // Vendor Payments
+  listVendorPayments: (params?: { vendor_id?: number; start_date?: string; end_date?: string }) =>
+    api.get('/payments/vendor-payments', { params }),
+  createVendorPayment: (data: any) => api.post('/payments/vendor-payments', data),
+  getVendorPayment: (id: number) => api.get(`/payments/vendor-payments/${id}`),
+
+  // Credit Notes
+  listCreditNotes: (params?: { customer_id?: number }) =>
+    api.get('/payments/credit-notes', { params }),
+  createCreditNote: (data: any) => api.post('/payments/credit-notes', data),
+  getCreditNote: (id: number) => api.get(`/payments/credit-notes/${id}`),
+
+  // Debit Notes
+  listDebitNotes: (params?: { vendor_id?: number }) =>
+    api.get('/payments/debit-notes', { params }),
+  createDebitNote: (data: any) => api.post('/payments/debit-notes', data),
+  getDebitNote: (id: number) => api.get(`/payments/debit-notes/${id}`),
+}
+
+// Stock Movements API
+export const stockMovementsApi = {
+  list: (params?: { product_id?: number; warehouse_id?: number; movement_type?: string }) =>
+    api.get('/stock-movements', { params }),
+  create: (data: any) => api.post('/stock-movements', data),
+  createAdjustment: (data: any) => api.post('/stock-movements/adjustment', data),
+  createTransfer: (data: any) => api.post('/stock-movements/transfer', data),
+  getProductStock: (productId: number) => api.get(`/stock-movements/product/${productId}`),
+  get: (id: number) => api.get(`/stock-movements/${id}`),
+}
+
+// Audit API
+export const auditApi = {
+  list: (params?: { action?: string; entity_type?: string; user_id?: number; start_date?: string; end_date?: string }) =>
+    api.get('/audit', { params }),
+  getSummary: (params?: { start_date?: string; end_date?: string }) =>
+    api.get('/audit/summary', { params }),
+  getEntityHistory: (entityType: string, entityId: number) =>
+    api.get(`/audit/entity/${entityType}/${entityId}`),
+  get: (id: number) => api.get(`/audit/${id}`),
+}
+
+// Documents API
+export const documentsApi = {
+  list: (params?: { entity_type?: string; entity_id?: number }) =>
+    api.get('/documents', { params }),
+  upload: (formData: FormData) =>
+    api.post('/documents', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+  get: (id: number) => api.get(`/documents/${id}`),
+  delete: (id: number) => api.delete(`/documents/${id}`),
+  link: (documentId: number, data: { entity_type: string; entity_id: number }) =>
+    api.post(`/documents/${documentId}/link`, data),
+  unlink: (documentId: number, linkId: number) =>
+    api.delete(`/documents/${documentId}/link/${linkId}`),
+  getLinks: (documentId: number) => api.get(`/documents/${documentId}/links`),
+}
+
+// Banking API
+export const bankingApi = {
+  listReconciliations: (params?: { account_id?: number; status?: string }) =>
+    api.get('/banking/reconciliations', { params }),
+  createReconciliation: (data: any) => api.post('/banking/reconciliations', data),
+  getReconciliation: (id: number) => api.get(`/banking/reconciliations/${id}`),
+  getUnclearedTransactions: (reconciliationId: number) =>
+    api.get(`/banking/reconciliations/${reconciliationId}/uncleared`),
+  addReconciliationItem: (reconciliationId: number, data: any) =>
+    api.post(`/banking/reconciliations/${reconciliationId}/items`, data),
+  toggleClearItem: (reconciliationId: number, itemId: number) =>
+    api.patch(`/banking/reconciliations/${reconciliationId}/items/${itemId}/clear`),
+  completeReconciliation: (reconciliationId: number) =>
+    api.post(`/banking/reconciliations/${reconciliationId}/complete`),
+  getReconciliationSummary: (reconciliationId: number) =>
+    api.get(`/banking/reconciliations/${reconciliationId}/summary`),
+}
+
+// Budgets API
+export const budgetsApi = {
+  list: (params?: { fiscal_year?: number; status?: string }) =>
+    api.get('/budgets', { params }),
+  create: (data: any) => api.post('/budgets', data),
+  get: (id: number) => api.get(`/budgets/${id}`),
+  update: (id: number, data: any) => api.patch(`/budgets/${id}`, data),
+  addLine: (budgetId: number, data: any) => api.post(`/budgets/${budgetId}/lines`, data),
+  updateLine: (budgetId: number, lineId: number, data: any) =>
+    api.patch(`/budgets/${budgetId}/lines/${lineId}`, data),
+  approve: (id: number) => api.post(`/budgets/${id}/approve`),
+  activate: (id: number) => api.post(`/budgets/${id}/activate`),
+  getBudgetVsActual: (id: number) => api.get(`/budgets/${id}/vs-actual`),
+}
+
+// Tax API
+export const taxesApi = {
+  // Tax Rates
+  listRates: (params?: { tax_type?: string; is_active?: boolean }) =>
+    api.get('/taxes/rates', { params }),
+  createRate: (data: any) => api.post('/taxes/rates', data),
+  getRate: (id: number) => api.get(`/taxes/rates/${id}`),
+  updateRate: (id: number, data: any) => api.patch(`/taxes/rates/${id}`, data),
+
+  // Tax Exemptions
+  listExemptions: (params?: { entity_type?: string; entity_id?: number }) =>
+    api.get('/taxes/exemptions', { params }),
+  createExemption: (data: any) => api.post('/taxes/exemptions', data),
+
+  // Tax Periods
+  listPeriods: (params?: { tax_type?: string; is_filed?: boolean }) =>
+    api.get('/taxes/periods', { params }),
+  createPeriod: (data: any) => api.post('/taxes/periods', data),
+  calculatePeriod: (id: number) => api.post(`/taxes/periods/${id}/calculate`),
+  filePeriod: (id: number, data?: any) => api.post(`/taxes/periods/${id}/file`, data),
+
+  // Tax Summary
+  getSummary: (startDate: string, endDate: string, taxType?: string) =>
+    api.get('/taxes/summary', { params: { start_date: startDate, end_date: endDate, tax_type: taxType } }),
+}
+
+// Recurring API
+export const recurringApi = {
+  list: (params?: { recurring_type?: string; status?: string }) =>
+    api.get('/recurring', { params }),
+  create: (data: any) => api.post('/recurring', data),
+  get: (id: number) => api.get(`/recurring/${id}`),
+  update: (id: number, data: any) => api.patch(`/recurring/${id}`, data),
+  pause: (id: number) => api.post(`/recurring/${id}/pause`),
+  resume: (id: number) => api.post(`/recurring/${id}/resume`),
+  execute: (id: number, executionDate?: string) =>
+    api.post(`/recurring/${id}/execute`, null, { params: { execution_date: executionDate } }),
+  listExecutions: (id: number) => api.get(`/recurring/${id}/executions`),
+  getDue: () => api.get('/recurring/due'),
 }
