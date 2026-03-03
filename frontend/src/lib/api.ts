@@ -196,13 +196,13 @@ export const reportsApi = {
 // Payments API
 export const paymentsApi = {
   // Customer Payments
-  listCustomerPayments: (params?: { customer_id?: number; start_date?: string; end_date?: string }) =>
+  listCustomerPayments: (params?: { customer_id?: number; invoice_id?: number; start_date?: string; end_date?: string }) =>
     api.get('/payments/customer-payments', { params }),
   createCustomerPayment: (data: any) => api.post('/payments/customer-payments', data),
   getCustomerPayment: (id: number) => api.get(`/payments/customer-payments/${id}`),
 
   // Vendor Payments
-  listVendorPayments: (params?: { vendor_id?: number; start_date?: string; end_date?: string }) =>
+  listVendorPayments: (params?: { vendor_id?: number; bill_id?: number; start_date?: string; end_date?: string }) =>
     api.get('/payments/vendor-payments', { params }),
   createVendorPayment: (data: any) => api.post('/payments/vendor-payments', data),
   getVendorPayment: (id: number) => api.get(`/payments/vendor-payments/${id}`),
