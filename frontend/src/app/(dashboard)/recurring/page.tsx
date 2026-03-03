@@ -153,7 +153,7 @@ export default function RecurringPage() {
       />
 
       {/* Due Templates Alert */}
-      {dueTemplates?.data?.length > 0 && (
+      {dueTemplates?.data && dueTemplates.data.length > 0 && (
         <Card className="mb-6 border-orange-200 bg-orange-50">
           <CardContent className="pt-4">
             <div className="flex items-center gap-2 text-orange-800">
