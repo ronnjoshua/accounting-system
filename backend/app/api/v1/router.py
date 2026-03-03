@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.api.v1 import (
-    auth, users, company, accounts,
+    auth, users, company, accounts, currencies,
     journal_entries, customers, vendors,
     invoices, bills, products, warehouses,
     purchase_orders, reports, payments,
@@ -18,6 +18,9 @@ api_router.include_router(users.router, prefix="/users", tags=["Users"])
 
 # Company settings
 api_router.include_router(company.router, prefix="/company", tags=["Company"])
+
+# Currencies
+api_router.include_router(currencies.router, prefix="/currencies", tags=["Currencies"])
 
 # Accounting
 api_router.include_router(accounts.router, prefix="/accounts", tags=["Chart of Accounts"])
