@@ -166,9 +166,8 @@ export default function SettingsPage() {
 
   const userColumns = [
     {
-      key: 'name',
-      label: 'Name',
-      render: (_: any, row: any) => (
+      header: 'Name',
+      accessor: (row: any) => (
         <div>
           <p className="font-medium">{row.first_name} {row.last_name}</p>
           <p className="text-sm text-muted-foreground">{row.email}</p>
@@ -176,9 +175,8 @@ export default function SettingsPage() {
       ),
     },
     {
-      key: 'roles',
-      label: 'Role',
-      render: (_: any, row: any) => (
+      header: 'Role',
+      accessor: (row: any) => (
         <div className="flex gap-1">
           {row.roles?.map((r: any) => (
             <Badge key={r.id} variant="outline">{r.name}</Badge>
@@ -187,23 +185,20 @@ export default function SettingsPage() {
       ),
     },
     {
-      key: 'is_active',
-      label: 'Status',
-      render: (v: boolean) => (
-        <Badge variant={v ? 'default' : 'secondary'}>
-          {v ? 'Active' : 'Inactive'}
+      header: 'Status',
+      accessor: (row: any) => (
+        <Badge variant={row.is_active ? 'default' : 'secondary'}>
+          {row.is_active ? 'Active' : 'Inactive'}
         </Badge>
       ),
     },
     {
-      key: 'created_at',
-      label: 'Joined',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      header: 'Joined',
+      accessor: (row: any) => new Date(row.created_at).toLocaleDateString(),
     },
     {
-      key: 'actions',
-      label: '',
-      render: (_: any, row: any) => (
+      header: '',
+      accessor: (row: any) => (
         <Button
           variant="ghost"
           size="sm"
