@@ -152,7 +152,7 @@ def ar_aging_report(
         select(Invoice, Customer)
         .join(Customer, Invoice.customer_id == Customer.id)
         .where(
-            Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE]),
+            Invoice.status.in_([InvoiceStatus.SENT.value, InvoiceStatus.PARTIALLY_PAID.value, InvoiceStatus.OVERDUE.value]),
             Invoice.balance_due > 0
         )
     )
@@ -224,7 +224,7 @@ def ap_aging_report(
         select(Bill, Vendor)
         .join(Vendor, Bill.vendor_id == Vendor.id)
         .where(
-            Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID, BillStatus.OVERDUE]),
+            Bill.status.in_([BillStatus.RECEIVED.value, BillStatus.PARTIALLY_PAID.value, BillStatus.OVERDUE.value]),
             Bill.balance_due > 0
         )
     )
@@ -289,31 +289,31 @@ def dashboard_summary(
     current_user: User = Depends(require_viewer),
     db: Session = Depends(get_db)
 ):
-    # Total AR
+    # Total AR - use .value for enum comparison
     ar_result = db.execute(
         select(func.sum(Invoice.balance_due))
-        .where(Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE]))
+        .where(Invoice.status.in_([InvoiceStatus.SENT.value, InvoiceStatus.PARTIALLY_PAID.value, InvoiceStatus.OVERDUE.value]))
     )
     total_ar = ar_result.scalar() or Decimal("0")
 
     # Total AP
     ap_result = db.execute(
         select(func.sum(Bill.balance_due))
-        .where(Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID, BillStatus.OVERDUE]))
+        .where(Bill.status.in_([BillStatus.RECEIVED.value, BillStatus.PARTIALLY_PAID.value, BillStatus.OVERDUE.value]))
     )
     total_ap = ap_result.scalar() or Decimal("0")
 
     # Count of open invoices
     invoice_count = db.execute(
         select(func.count(Invoice.id))
-        .where(Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID]))
+        .where(Invoice.status.in_([InvoiceStatus.SENT.value, InvoiceStatus.PARTIALLY_PAID.value]))
     )
     open_invoices = invoice_count.scalar() or 0
 
     # Count of open bills
     bill_count = db.execute(
         select(func.count(Bill.id))
-        .where(Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID]))
+        .where(Bill.status.in_([BillStatus.RECEIVED.value, BillStatus.PARTIALLY_PAID.value]))
     )
     open_bills = bill_count.scalar() or 0
 
@@ -322,7 +322,7 @@ def dashboard_summary(
     overdue_invoices_result = db.execute(
         select(func.count(Invoice.id))
         .where(
-            Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID]),
+            Invoice.status.in_([InvoiceStatus.SENT.value, InvoiceStatus.PARTIALLY_PAID.value]),
             Invoice.due_date < today
         )
     )
@@ -332,7 +332,7 @@ def dashboard_summary(
     overdue_bills_result = db.execute(
         select(func.count(Bill.id))
         .where(
-            Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID]),
+            Bill.status.in_([BillStatus.RECEIVED.value, BillStatus.PARTIALLY_PAID.value]),
             Bill.due_date < today
         )
     )
