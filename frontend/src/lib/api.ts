@@ -116,6 +116,7 @@ export const invoicesApi = {
   get: (id: number) => api.get(`/invoices/${id}`),
   create: (data: any) => api.post('/invoices', data),
   update: (id: number, data: any) => api.patch(`/invoices/${id}`, data),
+  post: (id: number) => api.post(`/invoices/${id}/post`),
   send: (id: number) => api.post(`/invoices/${id}/send`),
   void: (id: number) => api.post(`/invoices/${id}/void`),
 }
@@ -138,6 +139,7 @@ export const billsApi = {
   create: (data: any) => api.post('/bills', data),
   update: (id: number, data: any) => api.patch(`/bills/${id}`, data),
   receive: (id: number) => api.post(`/bills/${id}/receive`),
+  approve: (id: number) => api.post(`/bills/${id}/approve`),
   void: (id: number) => api.post(`/bills/${id}/void`),
 }
 
