@@ -56,7 +56,7 @@ export default function BudgetDetailPage() {
   const { data: comparison } = useQuery({
     queryKey: ['budget-comparison', id],
     queryFn: async () => {
-      const response = await budgetsApi.getComparison(Number(id))
+      const response = await budgetsApi.getBudgetVsActual(Number(id))
       return response.data
     },
     enabled: budget?.status === 'active',

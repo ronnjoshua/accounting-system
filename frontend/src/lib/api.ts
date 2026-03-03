@@ -76,6 +76,16 @@ export const companyApi = {
   update: (data: any) => api.patch('/company', data),
 }
 
+// Currencies API
+export const currenciesApi = {
+  list: () => api.get('/currencies'),
+  get: (code: string) => api.get(`/currencies/${code}`),
+  create: (data: any) => api.post('/currencies', data),
+  update: (code: string, data: any) => api.patch(`/currencies/${code}`, data),
+  getExchangeRates: (baseCurrency: string, date?: string) =>
+    api.get('/currencies/exchange-rates', { params: { base_currency: baseCurrency, date } }),
+}
+
 // Accounts API
 export const accountsApi = {
   list: (params?: { category?: string; is_active?: boolean }) =>
