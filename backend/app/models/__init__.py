@@ -12,6 +12,10 @@ from app.models.inventory import (
 )
 from app.models.document import Document, DocumentLink
 from app.models.audit import AuditLog
+from app.models.banking import BankReconciliation, BankReconciliationItem, BankTransaction
+from app.models.budget import Budget, BudgetLine
+from app.models.tax import TaxRate, TaxExemption, TaxPeriod
+from app.models.recurring import RecurringTemplate, RecurringExecution
 
 __all__ = [
     # User
@@ -32,4 +36,12 @@ __all__ = [
     "Document", "DocumentLink",
     # Audit
     "AuditLog",
+    # Banking
+    "BankReconciliation", "BankReconciliationItem", "BankTransaction",
+    # Budget
+    "Budget", "BudgetLine",
+    # Tax
+    "TaxRate", "TaxExemption", "TaxPeriod",
+    # Recurring
+    "RecurringTemplate", "RecurringExecution",
 ]
