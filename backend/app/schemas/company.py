@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class CompanySettingsBase(BaseModel):
@@ -44,10 +44,9 @@ class CompanySettingsUpdate(BaseModel):
 
 
 class CompanySettingsResponse(CompanySettingsBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     logo_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True

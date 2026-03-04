@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from app.models.ar import InvoiceStatus
 
 
@@ -60,14 +60,13 @@ class CustomerUpdate(BaseModel):
 
 
 class CustomerResponse(CustomerBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool
     notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class InvoiceLineCreate(BaseModel):
@@ -77,10 +76,12 @@ class InvoiceLineCreate(BaseModel):
     unit_price: Decimal
     discount_percent: Decimal = Decimal("0")
     tax_percent: Decimal = Decimal("0")
-    account_id: Optional[int] = None  # Will use default revenue account if not provided
+    account_id: Optional[int] = None
 
 
 class InvoiceLineResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     product_id: Optional[int] = None
     description: str
@@ -90,9 +91,6 @@ class InvoiceLineResponse(BaseModel):
     tax_percent: Decimal
     line_total: Decimal
     account_id: int
-
-    class Config:
-        orm_mode = True
 
 
 class InvoiceCreate(BaseModel):
@@ -117,6 +115,8 @@ class InvoiceUpdate(BaseModel):
 
 
 class InvoiceResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     invoice_number: str
     customer_id: int
@@ -138,9 +138,6 @@ class InvoiceResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class CustomerPaymentCreate(BaseModel):
     customer_id: int
@@ -156,6 +153,8 @@ class CustomerPaymentCreate(BaseModel):
 
 
 class CustomerPaymentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     payment_number: str
     customer_id: int
@@ -169,6 +168,3 @@ class CustomerPaymentResponse(BaseModel):
     bank_account_id: int
     invoice_id: Optional[int] = None
     created_at: datetime
-
-    class Config:
-        orm_mode = True

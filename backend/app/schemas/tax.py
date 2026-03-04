@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.tax import TaxType
 
 
@@ -35,6 +35,8 @@ class TaxRateUpdate(BaseModel):
 
 
 class TaxRateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     code: str
     name: str
@@ -52,9 +54,6 @@ class TaxRateResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class TaxExemptionCreate(BaseModel):
     entity_type: str
@@ -68,6 +67,8 @@ class TaxExemptionCreate(BaseModel):
 
 
 class TaxExemptionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     entity_type: str
     entity_id: int
@@ -81,9 +82,6 @@ class TaxExemptionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class TaxPeriodCreate(BaseModel):
     name: str
@@ -95,6 +93,8 @@ class TaxPeriodCreate(BaseModel):
 
 
 class TaxPeriodResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     tax_type: TaxType
@@ -113,9 +113,6 @@ class TaxPeriodResponse(BaseModel):
     notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class TaxSummaryReport(BaseModel):

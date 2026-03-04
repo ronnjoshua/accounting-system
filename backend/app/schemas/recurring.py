@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import Optional, List, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.recurring import RecurringFrequency, RecurringStatus, RecurringType
 
 
@@ -33,6 +33,8 @@ class RecurringTemplateUpdate(BaseModel):
 
 
 class RecurringExecutionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     template_id: int
     scheduled_date: date
@@ -43,11 +45,10 @@ class RecurringExecutionResponse(BaseModel):
     created_entity_id: Optional[int] = None
     executed_by_id: Optional[int] = None
 
-    class Config:
-        orm_mode = True
-
 
 class RecurringTemplateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     description: Optional[str] = None
@@ -69,6 +70,3 @@ class RecurringTemplateResponse(BaseModel):
     executions: List[RecurringExecutionResponse] = []
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True

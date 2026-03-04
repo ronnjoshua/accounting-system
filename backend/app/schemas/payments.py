@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 # ============== Customer Payments ==============
@@ -20,6 +20,8 @@ class CustomerPaymentCreate(BaseModel):
 
 
 class CustomerPaymentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     payment_number: str
     customer_id: int
@@ -35,9 +37,6 @@ class CustomerPaymentResponse(BaseModel):
     journal_entry_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 # ============== Vendor Payments ==============
@@ -56,6 +55,8 @@ class VendorPaymentCreate(BaseModel):
 
 
 class VendorPaymentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     payment_number: str
     vendor_id: int
@@ -72,9 +73,6 @@ class VendorPaymentResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 # ============== Credit Notes ==============
 
@@ -89,6 +87,8 @@ class CreditNoteCreate(BaseModel):
 
 
 class CreditNoteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     credit_note_number: str
     customer_id: int
@@ -101,9 +101,6 @@ class CreditNoteResponse(BaseModel):
     journal_entry_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 # ============== Debit Notes ==============
@@ -119,6 +116,8 @@ class DebitNoteCreate(BaseModel):
 
 
 class DebitNoteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     debit_note_number: str
     vendor_id: int
@@ -131,6 +130,3 @@ class DebitNoteResponse(BaseModel):
     journal_entry_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True

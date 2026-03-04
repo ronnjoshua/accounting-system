@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class DocumentCreate(BaseModel):
@@ -8,6 +8,8 @@ class DocumentCreate(BaseModel):
 
 
 class DocumentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     filename: str
     original_filename: str
@@ -20,9 +22,6 @@ class DocumentResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class DocumentLinkCreate(BaseModel):
     entity_type: str
@@ -30,11 +29,10 @@ class DocumentLinkCreate(BaseModel):
 
 
 class DocumentLinkResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     document_id: int
     entity_type: str
     entity_id: int
     created_at: datetime
-
-    class Config:
-        orm_mode = True

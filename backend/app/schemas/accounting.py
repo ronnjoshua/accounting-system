@@ -1,19 +1,18 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.accounting import AccountTypeEnum, JournalEntryStatus
 
 
 class AccountTypeResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     category: AccountTypeEnum
     description: Optional[str] = None
     normal_balance: str
-
-    class Config:
-        orm_mode = True
 
 
 class AccountBase(BaseModel):
@@ -38,6 +37,8 @@ class AccountUpdate(BaseModel):
 
 
 class AccountResponse(AccountBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool
     is_system: bool
@@ -45,9 +46,6 @@ class AccountResponse(AccountBase):
     account_type: AccountTypeResponse
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class CurrencyCreate(BaseModel):
@@ -58,15 +56,14 @@ class CurrencyCreate(BaseModel):
 
 
 class CurrencyResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     code: str
     name: str
     symbol: str
     decimal_places: int
     is_active: bool
-
-    class Config:
-        orm_mode = True
 
 
 class ExchangeRateCreate(BaseModel):
@@ -77,14 +74,13 @@ class ExchangeRateCreate(BaseModel):
 
 
 class ExchangeRateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     from_currency_code: str
     to_currency_code: str
     rate: Decimal
     effective_date: date
-
-    class Config:
-        orm_mode = True
 
 
 class JournalEntryLineCreate(BaseModel):
@@ -97,6 +93,8 @@ class JournalEntryLineCreate(BaseModel):
 
 
 class JournalEntryLineResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     account_id: int
     description: Optional[str] = None
@@ -106,9 +104,6 @@ class JournalEntryLineResponse(BaseModel):
     exchange_rate: Decimal
     base_debit: Decimal
     base_credit: Decimal
-
-    class Config:
-        orm_mode = True
 
 
 class JournalEntryCreate(BaseModel):
@@ -128,6 +123,8 @@ class JournalEntryUpdate(BaseModel):
 
 
 class JournalEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     entry_number: str
     entry_date: date
@@ -141,6 +138,3 @@ class JournalEntryResponse(BaseModel):
     lines: List[JournalEntryLineResponse] = []
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True

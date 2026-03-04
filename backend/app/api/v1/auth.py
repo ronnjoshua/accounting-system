@@ -48,7 +48,7 @@ def login(
     )
 
     tokens = generate_tokens(user)
-    return TokenResponse(**tokens, user=UserResponse.from_orm(user))
+    return TokenResponse(**tokens, user=UserResponse.model_validate(user))
 
 
 @router.post("/invite", response_model=UserInviteResponse)
@@ -104,7 +104,7 @@ def accept_invite(
     )
 
     tokens = generate_tokens(user)
-    return TokenResponse(**tokens, user=UserResponse.from_orm(user))
+    return TokenResponse(**tokens, user=UserResponse.model_validate(user))
 
 
 @router.get("/me", response_model=UserResponse)

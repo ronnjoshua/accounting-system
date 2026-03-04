@@ -1,15 +1,14 @@
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class RoleResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     description: Optional[str] = None
-
-    class Config:
-        orm_mode = True
 
 
 class UserCreate(BaseModel):
@@ -26,6 +25,8 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: str
     first_name: str
@@ -36,9 +37,6 @@ class UserResponse(BaseModel):
     roles: List[RoleResponse] = []
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class UserLogin(BaseModel):
@@ -59,15 +57,14 @@ class UserInviteCreate(BaseModel):
 
 
 class UserInviteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: str
     role: RoleResponse
     expires_at: datetime
     accepted_at: Optional[datetime] = None
     created_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class AcceptInvite(BaseModel):

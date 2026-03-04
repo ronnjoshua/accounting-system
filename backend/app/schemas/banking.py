@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.banking import ReconciliationStatus
 
 
@@ -21,6 +21,8 @@ class BankReconciliationItemCreate(BaseModel):
 
 
 class BankReconciliationItemResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     reconciliation_id: int
     journal_entry_line_id: Optional[int] = None
@@ -30,11 +32,10 @@ class BankReconciliationItemResponse(BaseModel):
     is_cleared: bool
     cleared_date: Optional[date] = None
 
-    class Config:
-        orm_mode = True
-
 
 class BankReconciliationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     account_id: int
     statement_date: date
@@ -50,11 +51,10 @@ class BankReconciliationResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class BankTransactionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     account_id: int
     transaction_id: str
@@ -68,9 +68,6 @@ class BankTransactionResponse(BaseModel):
     category: Optional[str] = None
     memo: Optional[str] = None
     created_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class ReconciliationSummary(BaseModel):

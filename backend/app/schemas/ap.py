@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from app.models.ap import BillStatus
 
 
@@ -52,14 +52,13 @@ class VendorUpdate(BaseModel):
 
 
 class VendorResponse(VendorBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool
     notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class BillLineCreate(BaseModel):
@@ -69,10 +68,12 @@ class BillLineCreate(BaseModel):
     unit_price: Decimal
     discount_percent: Decimal = Decimal("0")
     tax_percent: Decimal = Decimal("0")
-    account_id: Optional[int] = None  # Will use default expense account if not provided
+    account_id: Optional[int] = None
 
 
 class BillLineResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     product_id: Optional[int] = None
     description: str
@@ -82,9 +83,6 @@ class BillLineResponse(BaseModel):
     tax_percent: Decimal
     line_total: Decimal
     account_id: int
-
-    class Config:
-        orm_mode = True
 
 
 class BillCreate(BaseModel):
@@ -110,6 +108,8 @@ class BillUpdate(BaseModel):
 
 
 class BillResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     bill_number: str
     vendor_bill_number: Optional[str] = None
@@ -132,9 +132,6 @@ class BillResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class VendorPaymentCreate(BaseModel):
     vendor_id: int
@@ -150,6 +147,8 @@ class VendorPaymentCreate(BaseModel):
 
 
 class VendorPaymentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     payment_number: str
     vendor_id: int
@@ -163,6 +162,3 @@ class VendorPaymentResponse(BaseModel):
     bank_account_id: int
     bill_id: Optional[int] = None
     created_at: datetime
-
-    class Config:
-        orm_mode = True

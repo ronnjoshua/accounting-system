@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.budget import BudgetPeriodType, BudgetStatus
 
 
@@ -13,6 +13,8 @@ class BudgetLineCreate(BaseModel):
 
 
 class BudgetLineResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     budget_id: int
     account_id: int
@@ -24,9 +26,6 @@ class BudgetLineResponse(BaseModel):
     variance: Decimal
     variance_percent: Decimal
     notes: Optional[str] = None
-
-    class Config:
-        orm_mode = True
 
 
 class BudgetCreate(BaseModel):
@@ -44,6 +43,8 @@ class BudgetUpdate(BaseModel):
 
 
 class BudgetResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     description: Optional[str] = None
@@ -61,9 +62,6 @@ class BudgetResponse(BaseModel):
     lines: List[BudgetLineResponse] = []
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class BudgetLineActual(BaseModel):

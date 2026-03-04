@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.inventory import ProductType, MovementType, PurchaseOrderStatus
 
 
@@ -48,15 +48,14 @@ class ProductUpdate(BaseModel):
 
 
 class ProductResponse(ProductBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool
     quantity_on_hand: Decimal
     average_cost: Decimal
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class WarehouseBase(BaseModel):
@@ -87,14 +86,13 @@ class WarehouseUpdate(BaseModel):
 
 
 class WarehouseResponse(WarehouseBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool
     is_default: bool
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class StockMovementCreate(BaseModel):
@@ -114,7 +112,7 @@ class StockAdjustmentCreate(BaseModel):
     product_id: int
     warehouse_id: int
     adjustment_date: date
-    adjustment_quantity: Decimal  # Positive for increase, negative for decrease
+    adjustment_quantity: Decimal
     unit_cost: Decimal
     reason: str
 
@@ -145,6 +143,8 @@ class ProductStockResponse(BaseModel):
 
 
 class StockMovementResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     movement_number: str
     product_id: int
@@ -161,9 +161,6 @@ class StockMovementResponse(BaseModel):
     notes: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class PurchaseOrderLineCreate(BaseModel):
     product_id: int
@@ -174,6 +171,8 @@ class PurchaseOrderLineCreate(BaseModel):
 
 
 class PurchaseOrderLineResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     product_id: int
     description: Optional[str] = None
@@ -182,9 +181,6 @@ class PurchaseOrderLineResponse(BaseModel):
     unit_price: Decimal
     tax_percent: Decimal
     line_total: Decimal
-
-    class Config:
-        orm_mode = True
 
 
 class PurchaseOrderCreate(BaseModel):
@@ -205,6 +201,8 @@ class PurchaseOrderUpdate(BaseModel):
 
 
 class PurchaseOrderResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     po_number: str
     vendor_id: int
@@ -222,6 +220,3 @@ class PurchaseOrderResponse(BaseModel):
     lines: List[PurchaseOrderLineResponse] = []
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
