@@ -9,9 +9,9 @@ import enum
 
 
 class ReconciliationStatus(str, enum.Enum):
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+    in_progress = "in_progress"
+    completed = "completed"
+    cancelled = "cancelled"
 
 
 class BankReconciliation(Base, AuditMixin):
@@ -29,7 +29,7 @@ class BankReconciliation(Base, AuditMixin):
     difference: Mapped[Decimal] = mapped_column(Numeric(18, 2), default=0, nullable=False)
 
     status: Mapped[ReconciliationStatus] = mapped_column(
-        SQLEnum(ReconciliationStatus), default=ReconciliationStatus.IN_PROGRESS, nullable=False
+        SQLEnum(ReconciliationStatus), default=ReconciliationStatus.in_progress, nullable=False
     )
 
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

@@ -152,10 +152,10 @@ def pause_recurring_template(
     if not template:
         raise HTTPException(status_code=404, detail="Recurring template not found")
 
-    if template.status != RecurringStatus.ACTIVE:
+    if template.status != RecurringStatus.active:
         raise HTTPException(status_code=400, detail="Only active templates can be paused")
 
-    template.status = RecurringStatus.PAUSED
+    template.status = RecurringStatus.paused
     db.commit()
     db.refresh(template)
     return template
@@ -174,10 +174,10 @@ def resume_recurring_template(
     if not template:
         raise HTTPException(status_code=404, detail="Recurring template not found")
 
-    if template.status != RecurringStatus.PAUSED:
+    if template.status != RecurringStatus.paused:
         raise HTTPException(status_code=400, detail="Only paused templates can be resumed")
 
-    template.status = RecurringStatus.ACTIVE
+    template.status = RecurringStatus.active
     # Update next run date to today or later
     if template.next_run_date < date.today():
         template.next_run_date = date.today()
@@ -202,7 +202,7 @@ def execute_recurring_template(
     if not template:
         raise HTTPException(status_code=404, detail="Recurring template not found")
 
-    if template.status not in [RecurringStatus.ACTIVE, RecurringStatus.PAUSED]:
+    if template.status not in [RecurringStatus.active, RecurringStatus.paused]:
         raise HTTPException(status_code=400, detail="Template is not active or paused")
 
     exec_date = execution_date or date.today()
@@ -235,7 +235,7 @@ def execute_recurring_template(
                 exchange_rate=data.get("exchange_rate", 1),
                 is_recurring=True,
                 recurring_template_id=template_id,
-                status=JournalEntryStatus.POSTED if template.auto_post else JournalEntryStatus.DRAFT,
+                status=JournalEntryStatus.posted if template.auto_post else JournalEntryStatus.draft,
                 created_by_id=current_user.id,
                 updated_by_id=current_user.id
             )
@@ -283,9 +283,9 @@ def execute_recurring_template(
 
     # Check if completed
     if template.total_occurrences and template.occurrences_completed >= template.total_occurrences:
-        template.status = RecurringStatus.COMPLETED
+        template.status = RecurringStatus.completed
     elif template.end_date and template.next_run_date > template.end_date:
-        template.status = RecurringStatus.COMPLETED
+        template.status = RecurringStatus.completed
 
     db.commit()
     db.refresh(execution)
@@ -326,7 +326,7 @@ def get_due_recurring_templates(
     today = date.today()
 
     query = select(RecurringTemplate).where(and_(
-        RecurringTemplate.status == RecurringStatus.ACTIVE,
+        RecurringTemplate.status == RecurringStatus.active,
         RecurringTemplate.next_run_date <= today
     )).order_by(RecurringTemplate.next_run_date)
 

@@ -77,7 +77,7 @@ def post_journal_entry(
     entry: JournalEntry,
     posted_by_id: int
 ) -> JournalEntry:
-    if entry.status != JournalEntryStatus.DRAFT:
+    if entry.status != JournalEntryStatus.draft:
         raise ValueError("Only draft entries can be posted")
 
     # Update account balances
@@ -100,7 +100,7 @@ def post_journal_entry(
             account.current_balance += line.base_credit - line.base_debit
 
     # Update entry status
-    entry.status = JournalEntryStatus.POSTED
+    entry.status = JournalEntryStatus.posted
     entry.posted_at = datetime.utcnow()
     entry.posted_by_id = posted_by_id
 
@@ -115,10 +115,10 @@ def void_journal_entry(
     voided_by_id: int,
     reason: str
 ) -> JournalEntry:
-    if entry.status == JournalEntryStatus.VOID:
+    if entry.status == JournalEntryStatus.void:
         raise ValueError("Entry is already voided")
 
-    if entry.status == JournalEntryStatus.POSTED:
+    if entry.status == JournalEntryStatus.posted:
         # Reverse the account balance updates
         for line in entry.lines:
             result = db.execute(
@@ -137,7 +137,7 @@ def void_journal_entry(
             else:
                 account.current_balance -= line.base_credit - line.base_debit
 
-    entry.status = JournalEntryStatus.VOID
+    entry.status = JournalEntryStatus.void
     entry.voided_at = datetime.utcnow()
     entry.voided_by_id = voided_by_id
     entry.void_reason = reason

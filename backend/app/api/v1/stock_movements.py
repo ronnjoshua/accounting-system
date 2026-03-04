@@ -29,8 +29,8 @@ def update_product_stock(db: Session, product_id: int):
         select(func.sum(StockMovement.quantity))
         .where(StockMovement.product_id == product_id)
         .where(StockMovement.movement_type.in_([
-            MovementType.PURCHASE, MovementType.TRANSFER_IN,
-            MovementType.ADJUSTMENT_IN, MovementType.RETURN_IN
+            MovementType.purchase, MovementType.transfer_in,
+            MovementType.adjustment_in, MovementType.return_in
         ]))
     )
     total_in = result.scalar() or Decimal("0")
@@ -39,8 +39,8 @@ def update_product_stock(db: Session, product_id: int):
         select(func.sum(StockMovement.quantity))
         .where(StockMovement.product_id == product_id)
         .where(StockMovement.movement_type.in_([
-            MovementType.SALE, MovementType.TRANSFER_OUT,
-            MovementType.ADJUSTMENT_OUT, MovementType.RETURN_OUT
+            MovementType.sale, MovementType.transfer_out,
+            MovementType.adjustment_out, MovementType.return_out
         ]))
     )
     total_out = result.scalar() or Decimal("0")
@@ -58,7 +58,7 @@ def calculate_average_cost(db: Session, product_id: int) -> Decimal:
         )
         .where(StockMovement.product_id == product_id)
         .where(StockMovement.movement_type.in_([
-            MovementType.PURCHASE, MovementType.ADJUSTMENT_IN
+            MovementType.purchase, MovementType.adjustment_in
         ]))
     )
     row = result.one()
@@ -125,8 +125,8 @@ def create_stock_movement(
     current_qty = product.quantity_on_hand
 
     # For outbound movements, check if we have enough stock
-    if data.movement_type in [MovementType.SALE, MovementType.TRANSFER_OUT,
-                               MovementType.ADJUSTMENT_OUT, MovementType.RETURN_OUT]:
+    if data.movement_type in [MovementType.sale, MovementType.transfer_out,
+                               MovementType.adjustment_out, MovementType.return_out]:
         if data.quantity > current_qty:
             raise HTTPException(
                 status_code=400,
@@ -185,10 +185,10 @@ def create_stock_adjustment(
 
     # Determine movement type based on adjustment
     if data.adjustment_quantity >= 0:
-        movement_type = MovementType.ADJUSTMENT_IN
+        movement_type = MovementType.adjustment_in
         quantity = data.adjustment_quantity
     else:
-        movement_type = MovementType.ADJUSTMENT_OUT
+        movement_type = MovementType.adjustment_out
         quantity = abs(data.adjustment_quantity)
         # Check if we have enough stock
         if quantity > product.quantity_on_hand:
@@ -199,7 +199,7 @@ def create_stock_adjustment(
 
     total_cost = quantity * data.unit_cost
 
-    if movement_type == MovementType.ADJUSTMENT_IN:
+    if movement_type == MovementType.adjustment_in:
         quantity_after = product.quantity_on_hand + quantity
     else:
         quantity_after = product.quantity_on_hand - quantity
@@ -275,7 +275,7 @@ def create_stock_transfer(
         movement_number=out_number,
         product_id=data.product_id,
         warehouse_id=data.from_warehouse_id,
-        movement_type=MovementType.TRANSFER_OUT,
+        movement_type=MovementType.transfer_out,
         movement_date=data.transfer_date,
         quantity=data.quantity,
         unit_cost=product.average_cost or product.purchase_price,
@@ -295,7 +295,7 @@ def create_stock_transfer(
         movement_number=in_number,
         product_id=data.product_id,
         warehouse_id=data.to_warehouse_id,
-        movement_type=MovementType.TRANSFER_IN,
+        movement_type=MovementType.transfer_in,
         movement_date=data.transfer_date,
         quantity=data.quantity,
         unit_cost=product.average_cost or product.purchase_price,
@@ -338,8 +338,8 @@ def get_product_stock(
             .where(StockMovement.product_id == product_id)
             .where(StockMovement.warehouse_id == warehouse.id)
             .where(StockMovement.movement_type.in_([
-                MovementType.PURCHASE, MovementType.TRANSFER_IN,
-                MovementType.ADJUSTMENT_IN, MovementType.RETURN_IN
+                MovementType.purchase, MovementType.transfer_in,
+                MovementType.adjustment_in, MovementType.return_in
             ]))
         )
         total_in = result.scalar() or Decimal("0")
@@ -349,8 +349,8 @@ def get_product_stock(
             .where(StockMovement.product_id == product_id)
             .where(StockMovement.warehouse_id == warehouse.id)
             .where(StockMovement.movement_type.in_([
-                MovementType.SALE, MovementType.TRANSFER_OUT,
-                MovementType.ADJUSTMENT_OUT, MovementType.RETURN_OUT
+                MovementType.sale, MovementType.transfer_out,
+                MovementType.adjustment_out, MovementType.return_out
             ]))
         )
         total_out = result.scalar() or Decimal("0")

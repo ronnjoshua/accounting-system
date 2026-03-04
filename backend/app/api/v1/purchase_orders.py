@@ -125,7 +125,7 @@ def update_purchase_order(
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    if po.status not in [PurchaseOrderStatus.DRAFT]:
+    if po.status not in [PurchaseOrderStatus.draft]:
         raise HTTPException(
             status_code=400,
             detail="Only draft purchase orders can be modified"
@@ -182,10 +182,10 @@ def send_purchase_order(
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    if po.status != PurchaseOrderStatus.DRAFT:
+    if po.status != PurchaseOrderStatus.draft:
         raise HTTPException(status_code=400, detail="Only draft POs can be sent")
 
-    po.status = PurchaseOrderStatus.SENT
+    po.status = PurchaseOrderStatus.sent
     po.updated_by_id = current_user.id
     db.commit()
     db.refresh(po)
@@ -203,10 +203,10 @@ def cancel_purchase_order(
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    if po.status in [PurchaseOrderStatus.RECEIVED, PurchaseOrderStatus.CANCELLED]:
+    if po.status in [PurchaseOrderStatus.received, PurchaseOrderStatus.cancelled]:
         raise HTTPException(status_code=400, detail="Cannot cancel this PO")
 
-    po.status = PurchaseOrderStatus.CANCELLED
+    po.status = PurchaseOrderStatus.cancelled
     po.updated_by_id = current_user.id
     db.commit()
     db.refresh(po)

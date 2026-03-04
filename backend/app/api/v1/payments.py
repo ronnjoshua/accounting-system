@@ -94,9 +94,9 @@ def create_customer_payment(
             raise HTTPException(status_code=404, detail="Invoice not found")
         if invoice.customer_id != data.customer_id:
             raise HTTPException(status_code=400, detail="Invoice does not belong to this customer")
-        if invoice.status == InvoiceStatus.PAID:
+        if invoice.status == InvoiceStatus.paid:
             raise HTTPException(status_code=400, detail="Invoice is already fully paid")
-        if invoice.status == InvoiceStatus.VOID:
+        if invoice.status == InvoiceStatus.void:
             raise HTTPException(status_code=400, detail="Cannot pay a voided invoice")
 
     payment_number = get_next_customer_payment_number(db)
@@ -126,10 +126,10 @@ def create_customer_payment(
         invoice.balance_due = invoice.total - invoice.amount_paid
 
         if invoice.balance_due <= 0:
-            invoice.status = InvoiceStatus.PAID
+            invoice.status = InvoiceStatus.paid
             invoice.balance_due = Decimal("0")
         else:
-            invoice.status = InvoiceStatus.PARTIALLY_PAID
+            invoice.status = InvoiceStatus.partially_paid
 
     # Create journal entry for the payment
     ar_account_id = customer.receivable_account_id or get_default_ar_account(db)
@@ -147,7 +147,7 @@ def create_customer_payment(
         exchange_rate=data.exchange_rate,
         source_type="customer_payment",
         source_id=None,  # Will update after commit
-        status=JournalEntryStatus.POSTED,
+        status=JournalEntryStatus.posted,
         created_by_id=current_user.id,
         updated_by_id=current_user.id,
         posted_by_id=current_user.id
@@ -278,9 +278,9 @@ def create_vendor_payment(
             raise HTTPException(status_code=404, detail="Bill not found")
         if bill.vendor_id != data.vendor_id:
             raise HTTPException(status_code=400, detail="Bill does not belong to this vendor")
-        if bill.status == BillStatus.PAID:
+        if bill.status == BillStatus.paid:
             raise HTTPException(status_code=400, detail="Bill is already fully paid")
-        if bill.status == BillStatus.VOID:
+        if bill.status == BillStatus.void:
             raise HTTPException(status_code=400, detail="Cannot pay a voided bill")
 
     payment_number = get_next_vendor_payment_number(db)
@@ -310,10 +310,10 @@ def create_vendor_payment(
         bill.balance_due = bill.total - bill.amount_paid
 
         if bill.balance_due <= 0:
-            bill.status = BillStatus.PAID
+            bill.status = BillStatus.paid
             bill.balance_due = Decimal("0")
         else:
-            bill.status = BillStatus.PARTIALLY_PAID
+            bill.status = BillStatus.partially_paid
 
     # Create journal entry for the payment
     ap_account_id = vendor.payable_account_id or get_default_ap_account(db)
@@ -331,7 +331,7 @@ def create_vendor_payment(
         exchange_rate=data.exchange_rate,
         source_type="vendor_payment",
         source_id=None,
-        status=JournalEntryStatus.POSTED,
+        status=JournalEntryStatus.posted,
         created_by_id=current_user.id,
         updated_by_id=current_user.id,
         posted_by_id=current_user.id
@@ -453,7 +453,7 @@ def create_credit_note(
     if invoice:
         invoice.balance_due -= data.amount
         if invoice.balance_due <= 0:
-            invoice.status = InvoiceStatus.PAID
+            invoice.status = InvoiceStatus.paid
             invoice.balance_due = Decimal("0")
 
     # Create journal entry (Debit Revenue/Sales Returns, Credit AR)
@@ -477,7 +477,7 @@ def create_credit_note(
         currency_code=data.currency_code,
         exchange_rate=data.exchange_rate,
         source_type="credit_note",
-        status=JournalEntryStatus.POSTED,
+        status=JournalEntryStatus.posted,
         created_by_id=current_user.id,
         updated_by_id=current_user.id,
         posted_by_id=current_user.id
@@ -594,7 +594,7 @@ def create_debit_note(
     if bill:
         bill.balance_due -= data.amount
         if bill.balance_due <= 0:
-            bill.status = BillStatus.PAID
+            bill.status = BillStatus.paid
             bill.balance_due = Decimal("0")
 
     # Create journal entry (Debit AP, Credit Purchase Returns/Expense)
@@ -618,7 +618,7 @@ def create_debit_note(
         currency_code=data.currency_code,
         exchange_rate=data.exchange_rate,
         source_type="debit_note",
-        status=JournalEntryStatus.POSTED,
+        status=JournalEntryStatus.posted,
         created_by_id=current_user.id,
         updated_by_id=current_user.id,
         posted_by_id=current_user.id

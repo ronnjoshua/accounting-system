@@ -52,12 +52,13 @@ class Customer(Base, AuditMixin):
 
 
 class InvoiceStatus(str, enum.Enum):
-    DRAFT = "draft"
-    SENT = "sent"
-    PARTIALLY_PAID = "partially_paid"
-    PAID = "paid"
-    OVERDUE = "overdue"
-    VOID = "void"
+    # Names must match database enum values (lowercase)
+    draft = "draft"
+    sent = "sent"
+    partially_paid = "partially_paid"
+    paid = "paid"
+    overdue = "overdue"
+    void = "void"
 
 
 class Invoice(Base, AuditMixin):
@@ -70,7 +71,7 @@ class Invoice(Base, AuditMixin):
     invoice_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     due_date: Mapped[date] = mapped_column(Date, nullable=False)
     status: Mapped[InvoiceStatus] = mapped_column(
-        SQLEnum(InvoiceStatus), default=InvoiceStatus.DRAFT, nullable=False
+        SQLEnum(InvoiceStatus), default=InvoiceStatus.draft, nullable=False
     )
 
     # Amounts

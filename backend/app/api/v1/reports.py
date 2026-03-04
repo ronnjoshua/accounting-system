@@ -74,13 +74,13 @@ def balance_sheet_report(
             "balance": abs(account.current_balance)
         }
 
-        if account_type.category == AccountTypeEnum.ASSET:
+        if account_type.category == AccountTypeEnum.asset:
             assets.append(item)
             total_assets += account.current_balance
-        elif account_type.category == AccountTypeEnum.LIABILITY:
+        elif account_type.category == AccountTypeEnum.liability:
             liabilities.append(item)
             total_liabilities += account.current_balance
-        elif account_type.category == AccountTypeEnum.EQUITY:
+        elif account_type.category == AccountTypeEnum.equity:
             equity.append(item)
             total_equity += account.current_balance
 
@@ -133,10 +133,10 @@ def income_statement_report(
             "balance": abs(account.current_balance)
         }
 
-        if account_type.category == AccountTypeEnum.REVENUE:
+        if account_type.category == AccountTypeEnum.revenue:
             revenue.append(item)
             total_revenue += abs(account.current_balance)
-        elif account_type.category == AccountTypeEnum.EXPENSE:
+        elif account_type.category == AccountTypeEnum.expense:
             expenses.append(item)
             total_expenses += abs(account.current_balance)
 
@@ -171,7 +171,7 @@ def ar_aging_report(
         select(Invoice, Customer)
         .join(Customer, Invoice.customer_id == Customer.id)
         .where(
-            Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE]),
+            Invoice.status.in_([InvoiceStatus.sent, InvoiceStatus.partially_paid, InvoiceStatus.overdue]),
             Invoice.balance_due > 0
         )
     )
@@ -243,7 +243,7 @@ def ap_aging_report(
         select(Bill, Vendor)
         .join(Vendor, Bill.vendor_id == Vendor.id)
         .where(
-            Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID, BillStatus.OVERDUE]),
+            Bill.status.in_([BillStatus.received, BillStatus.partially_paid, BillStatus.overdue]),
             Bill.balance_due > 0
         )
     )
@@ -311,28 +311,28 @@ def dashboard_summary(
     # Total AR - use enum members directly (not .value)
     ar_result = db.execute(
         select(func.sum(Invoice.balance_due))
-        .where(Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE]))
+        .where(Invoice.status.in_([InvoiceStatus.sent, InvoiceStatus.partially_paid, InvoiceStatus.overdue]))
     )
     total_ar = ar_result.scalar() or Decimal("0")
 
     # Total AP
     ap_result = db.execute(
         select(func.sum(Bill.balance_due))
-        .where(Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID, BillStatus.OVERDUE]))
+        .where(Bill.status.in_([BillStatus.received, BillStatus.partially_paid, BillStatus.overdue]))
     )
     total_ap = ap_result.scalar() or Decimal("0")
 
     # Count of open invoices
     invoice_count = db.execute(
         select(func.count(Invoice.id))
-        .where(Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID]))
+        .where(Invoice.status.in_([InvoiceStatus.sent, InvoiceStatus.partially_paid]))
     )
     open_invoices = invoice_count.scalar() or 0
 
     # Count of open bills
     bill_count = db.execute(
         select(func.count(Bill.id))
-        .where(Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID]))
+        .where(Bill.status.in_([BillStatus.received, BillStatus.partially_paid]))
     )
     open_bills = bill_count.scalar() or 0
 
@@ -341,7 +341,7 @@ def dashboard_summary(
     overdue_invoices_result = db.execute(
         select(func.count(Invoice.id))
         .where(
-            Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID]),
+            Invoice.status.in_([InvoiceStatus.sent, InvoiceStatus.partially_paid]),
             Invoice.due_date < today
         )
     )
@@ -351,7 +351,7 @@ def dashboard_summary(
     overdue_bills_result = db.execute(
         select(func.count(Bill.id))
         .where(
-            Bill.status.in_([BillStatus.RECEIVED, BillStatus.PARTIALLY_PAID]),
+            Bill.status.in_([BillStatus.received, BillStatus.partially_paid]),
             Bill.due_date < today
         )
     )
@@ -385,7 +385,7 @@ def general_ledger_report(
         select(JournalEntryLine, JournalEntry, Account)
         .join(JournalEntry, JournalEntryLine.journal_entry_id == JournalEntry.id)
         .join(Account, JournalEntryLine.account_id == Account.id)
-        .where(JournalEntry.status == JournalEntryStatus.POSTED)
+        .where(JournalEntry.status == JournalEntryStatus.posted)
     )
 
     if account_id:
@@ -477,9 +477,9 @@ def cash_flow_statement(
     total_expenses = Decimal("0")
 
     for account, account_type in result:
-        if account_type.category == AccountTypeEnum.REVENUE:
+        if account_type.category == AccountTypeEnum.revenue:
             total_revenue += abs(account.current_balance)
-        elif account_type.category == AccountTypeEnum.EXPENSE:
+        elif account_type.category == AccountTypeEnum.expense:
             total_expenses += abs(account.current_balance)
 
     net_income = total_revenue - total_expenses
@@ -517,7 +517,7 @@ def cash_flow_statement(
         .join(JournalEntry, JournalEntryLine.journal_entry_id == JournalEntry.id)
         .where(
             JournalEntryLine.account_id.in_(cash_account_ids),
-            JournalEntry.status == JournalEntryStatus.POSTED
+            JournalEntry.status == JournalEntryStatus.posted
         )
     )
     if start_date:
@@ -581,7 +581,7 @@ def account_transactions(
         .join(JournalEntry, JournalEntryLine.journal_entry_id == JournalEntry.id)
         .where(
             JournalEntryLine.account_id == account_id,
-            JournalEntry.status == JournalEntryStatus.POSTED
+            JournalEntry.status == JournalEntryStatus.posted
         )
     )
 

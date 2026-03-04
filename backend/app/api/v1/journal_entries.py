@@ -83,7 +83,7 @@ def update_journal_entry(
     if not entry:
         raise HTTPException(status_code=404, detail="Journal entry not found")
 
-    if entry.status != JournalEntryStatus.DRAFT:
+    if entry.status != JournalEntryStatus.draft:
         raise HTTPException(
             status_code=400,
             detail="Only draft entries can be modified"

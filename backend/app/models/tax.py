@@ -9,12 +9,12 @@ import enum
 
 
 class TaxType(str, enum.Enum):
-    SALES_TAX = "sales_tax"
-    VAT = "vat"
-    GST = "gst"
-    WITHHOLDING = "withholding"
-    EXCISE = "excise"
-    OTHER = "other"
+    sales_tax = "sales_tax"
+    vat = "vat"
+    gst = "gst"
+    withholding = "withholding"
+    excise = "excise"
+    other = "other"
 
 
 class TaxRate(Base, AuditMixin):

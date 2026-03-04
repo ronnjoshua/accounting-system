@@ -43,7 +43,7 @@ def get_actual_amount(db: Session, account_id: int, start_date: date, end_date: 
         .join(JournalEntry, JournalEntryLine.journal_entry_id == JournalEntry.id)
         .where(and_(
             JournalEntryLine.account_id == account_id,
-            JournalEntry.status == JournalEntryStatus.POSTED,
+            JournalEntry.status == JournalEntryStatus.posted,
             JournalEntry.entry_date >= start_date,
             JournalEntry.entry_date <= end_date
         ))
@@ -124,7 +124,7 @@ def update_budget(
     if not budget:
         raise HTTPException(status_code=404, detail="Budget not found")
 
-    if budget.status not in [BudgetStatus.DRAFT]:
+    if budget.status not in [BudgetStatus.draft]:
         raise HTTPException(status_code=400, detail="Only draft budgets can be modified")
 
     update_data = data.dict(exclude_unset=True)
@@ -148,7 +148,7 @@ def add_budget_line(
     if not budget:
         raise HTTPException(status_code=404, detail="Budget not found")
 
-    if budget.status not in [BudgetStatus.DRAFT, BudgetStatus.APPROVED]:
+    if budget.status not in [BudgetStatus.draft, BudgetStatus.approved]:
         raise HTTPException(status_code=400, detail="Cannot modify this budget")
 
     # Validate account
@@ -220,7 +220,7 @@ def update_budget_line(
 
     budget = db.execute(select(Budget).where(Budget.id == budget_id)).scalar_one()
 
-    if budget.status not in [BudgetStatus.DRAFT, BudgetStatus.APPROVED]:
+    if budget.status not in [BudgetStatus.draft, BudgetStatus.approved]:
         raise HTTPException(status_code=400, detail="Cannot modify this budget")
 
     old_amount = line.budgeted_amount
@@ -256,10 +256,10 @@ def approve_budget(
     if not budget:
         raise HTTPException(status_code=404, detail="Budget not found")
 
-    if budget.status != BudgetStatus.DRAFT:
+    if budget.status != BudgetStatus.draft:
         raise HTTPException(status_code=400, detail="Only draft budgets can be approved")
 
-    budget.status = BudgetStatus.APPROVED
+    budget.status = BudgetStatus.approved
     budget.approved_by_id = current_user.id
     budget.approved_at = datetime.utcnow()
 
@@ -278,10 +278,10 @@ def activate_budget(
     if not budget:
         raise HTTPException(status_code=404, detail="Budget not found")
 
-    if budget.status != BudgetStatus.APPROVED:
+    if budget.status != BudgetStatus.approved:
         raise HTTPException(status_code=400, detail="Only approved budgets can be activated")
 
-    budget.status = BudgetStatus.ACTIVE
+    budget.status = BudgetStatus.active
 
     db.commit()
     db.refresh(budget)

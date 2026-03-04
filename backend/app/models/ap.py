@@ -48,12 +48,13 @@ class Vendor(Base, AuditMixin):
 
 
 class BillStatus(str, enum.Enum):
-    DRAFT = "draft"
-    RECEIVED = "received"
-    PARTIALLY_PAID = "partially_paid"
-    PAID = "paid"
-    OVERDUE = "overdue"
-    VOID = "void"
+    # Names must match database enum values (lowercase)
+    draft = "draft"
+    received = "received"
+    partially_paid = "partially_paid"
+    paid = "paid"
+    overdue = "overdue"
+    void = "void"
 
 
 class Bill(Base, AuditMixin):
@@ -67,7 +68,7 @@ class Bill(Base, AuditMixin):
     bill_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     due_date: Mapped[date] = mapped_column(Date, nullable=False)
     status: Mapped[BillStatus] = mapped_column(
-        SQLEnum(BillStatus), default=BillStatus.DRAFT, nullable=False
+        SQLEnum(BillStatus), default=BillStatus.draft, nullable=False
     )
 
     # Amounts

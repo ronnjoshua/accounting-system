@@ -9,25 +9,25 @@ import enum
 
 
 class RecurringFrequency(str, enum.Enum):
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    BIWEEKLY = "biweekly"
-    MONTHLY = "monthly"
-    QUARTERLY = "quarterly"
-    YEARLY = "yearly"
+    daily = "daily"
+    weekly = "weekly"
+    biweekly = "biweekly"
+    monthly = "monthly"
+    quarterly = "quarterly"
+    yearly = "yearly"
 
 
 class RecurringStatus(str, enum.Enum):
-    ACTIVE = "active"
-    PAUSED = "paused"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+    active = "active"
+    paused = "paused"
+    completed = "completed"
+    cancelled = "cancelled"
 
 
 class RecurringType(str, enum.Enum):
-    JOURNAL_ENTRY = "journal_entry"
-    INVOICE = "invoice"
-    BILL = "bill"
+    journal_entry = "journal_entry"
+    invoice = "invoice"
+    bill = "bill"
 
 
 class RecurringTemplate(Base, AuditMixin):
@@ -53,7 +53,7 @@ class RecurringTemplate(Base, AuditMixin):
 
     # Status
     status: Mapped[RecurringStatus] = mapped_column(
-        SQLEnum(RecurringStatus), default=RecurringStatus.ACTIVE, nullable=False
+        SQLEnum(RecurringStatus), default=RecurringStatus.active, nullable=False
     )
 
     # Execution tracking

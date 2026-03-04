@@ -158,7 +158,7 @@ def add_reconciliation_item(
     if not reconciliation:
         raise HTTPException(status_code=404, detail="Reconciliation not found")
 
-    if reconciliation.status != ReconciliationStatus.IN_PROGRESS:
+    if reconciliation.status != ReconciliationStatus.in_progress:
         raise HTTPException(status_code=400, detail="Cannot modify completed reconciliation")
 
     item = BankReconciliationItem(
@@ -206,7 +206,7 @@ def toggle_clear_item(
         select(BankReconciliation).where(BankReconciliation.id == reconciliation_id)
     ).scalar_one()
 
-    if reconciliation.status != ReconciliationStatus.IN_PROGRESS:
+    if reconciliation.status != ReconciliationStatus.in_progress:
         raise HTTPException(status_code=400, detail="Cannot modify completed reconciliation")
 
     # Toggle cleared status
@@ -239,7 +239,7 @@ def complete_reconciliation(
     if not reconciliation:
         raise HTTPException(status_code=404, detail="Reconciliation not found")
 
-    if reconciliation.status != ReconciliationStatus.IN_PROGRESS:
+    if reconciliation.status != ReconciliationStatus.in_progress:
         raise HTTPException(status_code=400, detail="Reconciliation is not in progress")
 
     # Check if balanced (difference should be zero or within tolerance)
@@ -249,7 +249,7 @@ def complete_reconciliation(
             detail=f"Reconciliation is not balanced. Difference: {reconciliation.difference}"
         )
 
-    reconciliation.status = ReconciliationStatus.COMPLETED
+    reconciliation.status = ReconciliationStatus.completed
     reconciliation.completed_at = datetime.utcnow()
     reconciliation.completed_by_id = current_user.id
 

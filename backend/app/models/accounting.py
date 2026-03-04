@@ -9,11 +9,12 @@ import enum
 
 
 class AccountTypeEnum(str, enum.Enum):
-    ASSET = "asset"
-    LIABILITY = "liability"
-    EQUITY = "equity"
-    REVENUE = "revenue"
-    EXPENSE = "expense"
+    # Names must match database enum values (lowercase)
+    asset = "asset"
+    liability = "liability"
+    equity = "equity"
+    revenue = "revenue"
+    expense = "expense"
 
 
 class AccountType(Base, AuditMixin):
@@ -74,9 +75,10 @@ class ExchangeRate(Base, AuditMixin):
 
 
 class JournalEntryStatus(str, enum.Enum):
-    DRAFT = "draft"
-    POSTED = "posted"
-    VOID = "void"
+    # Names must match database enum values (lowercase)
+    draft = "draft"
+    posted = "posted"
+    void = "void"
 
 
 class JournalEntry(Base, AuditMixin):
@@ -88,7 +90,7 @@ class JournalEntry(Base, AuditMixin):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     reference: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     status: Mapped[JournalEntryStatus] = mapped_column(
-        SQLEnum(JournalEntryStatus), default=JournalEntryStatus.DRAFT, nullable=False
+        SQLEnum(JournalEntryStatus), default=JournalEntryStatus.draft, nullable=False
     )
     is_adjusting: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_closing: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

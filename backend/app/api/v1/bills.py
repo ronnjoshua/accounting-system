@@ -168,7 +168,7 @@ def update_bill(
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
 
-    if bill.status not in [BillStatus.DRAFT]:
+    if bill.status not in [BillStatus.draft]:
         raise HTTPException(
             status_code=400,
             detail="Only draft bills can be modified"
@@ -233,10 +233,10 @@ def receive_bill(
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
 
-    if bill.status != BillStatus.DRAFT:
+    if bill.status != BillStatus.draft:
         raise HTTPException(status_code=400, detail="Only draft bills can be received")
 
-    bill.status = BillStatus.RECEIVED
+    bill.status = BillStatus.received
     bill.updated_by_id = current_user.id
     db.commit()
     db.refresh(bill)
@@ -260,7 +260,7 @@ def void_bill(
             detail="Cannot void bill with payments applied"
         )
 
-    bill.status = BillStatus.VOID
+    bill.status = BillStatus.void
     bill.updated_by_id = current_user.id
     db.commit()
     db.refresh(bill)

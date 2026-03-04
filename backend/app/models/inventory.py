@@ -9,9 +9,9 @@ import enum
 
 
 class ProductType(str, enum.Enum):
-    INVENTORY = "inventory"
-    NON_INVENTORY = "non_inventory"
-    SERVICE = "service"
+    inventory = "inventory"
+    non_inventory = "non_inventory"
+    service = "service"
 
 
 class Product(Base, AuditMixin):
@@ -22,7 +22,7 @@ class Product(Base, AuditMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     product_type: Mapped[ProductType] = mapped_column(
-        SQLEnum(ProductType), default=ProductType.INVENTORY, nullable=False
+        SQLEnum(ProductType), default=ProductType.inventory, nullable=False
     )
 
     # Categorization
@@ -74,14 +74,14 @@ class Warehouse(Base, AuditMixin):
 
 
 class MovementType(str, enum.Enum):
-    PURCHASE = "purchase"
-    SALE = "sale"
-    TRANSFER_IN = "transfer_in"
-    TRANSFER_OUT = "transfer_out"
-    ADJUSTMENT_IN = "adjustment_in"
-    ADJUSTMENT_OUT = "adjustment_out"
-    RETURN_IN = "return_in"
-    RETURN_OUT = "return_out"
+    purchase = "purchase"
+    sale = "sale"
+    transfer_in = "transfer_in"
+    transfer_out = "transfer_out"
+    adjustment_in = "adjustment_in"
+    adjustment_out = "adjustment_out"
+    return_in = "return_in"
+    return_out = "return_out"
 
 
 class StockMovement(Base, AuditMixin):
@@ -113,11 +113,11 @@ class StockMovement(Base, AuditMixin):
 
 
 class PurchaseOrderStatus(str, enum.Enum):
-    DRAFT = "draft"
-    SENT = "sent"
-    PARTIALLY_RECEIVED = "partially_received"
-    RECEIVED = "received"
-    CANCELLED = "cancelled"
+    draft = "draft"
+    sent = "sent"
+    partially_received = "partially_received"
+    received = "received"
+    cancelled = "cancelled"
 
 
 class PurchaseOrder(Base, AuditMixin):
@@ -131,7 +131,7 @@ class PurchaseOrder(Base, AuditMixin):
     order_date: Mapped[date] = mapped_column(Date, nullable=False)
     expected_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     status: Mapped[PurchaseOrderStatus] = mapped_column(
-        SQLEnum(PurchaseOrderStatus), default=PurchaseOrderStatus.DRAFT, nullable=False
+        SQLEnum(PurchaseOrderStatus), default=PurchaseOrderStatus.draft, nullable=False
     )
 
     # Amounts

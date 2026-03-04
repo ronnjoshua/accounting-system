@@ -168,7 +168,7 @@ def update_invoice(
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
 
-    if invoice.status not in [InvoiceStatus.DRAFT]:
+    if invoice.status not in [InvoiceStatus.draft]:
         raise HTTPException(
             status_code=400,
             detail="Only draft invoices can be modified"
@@ -233,10 +233,10 @@ def send_invoice(
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
 
-    if invoice.status != InvoiceStatus.DRAFT:
+    if invoice.status != InvoiceStatus.draft:
         raise HTTPException(status_code=400, detail="Only draft invoices can be sent")
 
-    invoice.status = InvoiceStatus.SENT
+    invoice.status = InvoiceStatus.sent
     invoice.updated_by_id = current_user.id
     db.commit()
     db.refresh(invoice)
@@ -260,7 +260,7 @@ def void_invoice(
             detail="Cannot void invoice with payments applied"
         )
 
-    invoice.status = InvoiceStatus.VOID
+    invoice.status = InvoiceStatus.void
     invoice.updated_by_id = current_user.id
     db.commit()
     db.refresh(invoice)

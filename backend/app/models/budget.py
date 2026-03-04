@@ -9,16 +9,16 @@ import enum
 
 
 class BudgetPeriodType(str, enum.Enum):
-    MONTHLY = "monthly"
-    QUARTERLY = "quarterly"
-    YEARLY = "yearly"
+    monthly = "monthly"
+    quarterly = "quarterly"
+    yearly = "yearly"
 
 
 class BudgetStatus(str, enum.Enum):
-    DRAFT = "draft"
-    APPROVED = "approved"
-    ACTIVE = "active"
-    CLOSED = "closed"
+    draft = "draft"
+    approved = "approved"
+    active = "active"
+    closed = "closed"
 
 
 class Budget(Base, AuditMixin):
@@ -31,14 +31,14 @@ class Budget(Base, AuditMixin):
 
     fiscal_year: Mapped[int] = mapped_column(Integer, nullable=False)
     period_type: Mapped[BudgetPeriodType] = mapped_column(
-        SQLEnum(BudgetPeriodType), default=BudgetPeriodType.MONTHLY, nullable=False
+        SQLEnum(BudgetPeriodType), default=BudgetPeriodType.monthly, nullable=False
     )
 
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
 
     status: Mapped[BudgetStatus] = mapped_column(
-        SQLEnum(BudgetStatus), default=BudgetStatus.DRAFT, nullable=False
+        SQLEnum(BudgetStatus), default=BudgetStatus.draft, nullable=False
     )
 
     total_revenue: Mapped[Decimal] = mapped_column(Numeric(18, 2), default=0, nullable=False)
