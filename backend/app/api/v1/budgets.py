@@ -43,7 +43,7 @@ def get_actual_amount(db: Session, account_id: int, start_date: date, end_date: 
         .join(JournalEntry, JournalEntryLine.journal_entry_id == JournalEntry.id)
         .where(and_(
             JournalEntryLine.account_id == account_id,
-            JournalEntry.status == JournalEntryStatus.POSTED.value,
+            JournalEntry.status == JournalEntryStatus.POSTED,
             JournalEntry.entry_date >= start_date,
             JournalEntry.entry_date <= end_date
         ))

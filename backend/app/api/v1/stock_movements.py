@@ -29,8 +29,8 @@ def update_product_stock(db: Session, product_id: int):
         select(func.sum(StockMovement.quantity))
         .where(StockMovement.product_id == product_id)
         .where(StockMovement.movement_type.in_([
-            MovementType.PURCHASE.value, MovementType.TRANSFER_IN.value,
-            MovementType.ADJUSTMENT_IN.value, MovementType.RETURN_IN.value
+            MovementType.PURCHASE, MovementType.TRANSFER_IN,
+            MovementType.ADJUSTMENT_IN, MovementType.RETURN_IN
         ]))
     )
     total_in = result.scalar() or Decimal("0")
@@ -39,8 +39,8 @@ def update_product_stock(db: Session, product_id: int):
         select(func.sum(StockMovement.quantity))
         .where(StockMovement.product_id == product_id)
         .where(StockMovement.movement_type.in_([
-            MovementType.SALE.value, MovementType.TRANSFER_OUT.value,
-            MovementType.ADJUSTMENT_OUT.value, MovementType.RETURN_OUT.value
+            MovementType.SALE, MovementType.TRANSFER_OUT,
+            MovementType.ADJUSTMENT_OUT, MovementType.RETURN_OUT
         ]))
     )
     total_out = result.scalar() or Decimal("0")
@@ -58,7 +58,7 @@ def calculate_average_cost(db: Session, product_id: int) -> Decimal:
         )
         .where(StockMovement.product_id == product_id)
         .where(StockMovement.movement_type.in_([
-            MovementType.PURCHASE.value, MovementType.ADJUSTMENT_IN.value
+            MovementType.PURCHASE, MovementType.ADJUSTMENT_IN
         ]))
     )
     row = result.one()
@@ -338,8 +338,8 @@ def get_product_stock(
             .where(StockMovement.product_id == product_id)
             .where(StockMovement.warehouse_id == warehouse.id)
             .where(StockMovement.movement_type.in_([
-                MovementType.PURCHASE.value, MovementType.TRANSFER_IN.value,
-                MovementType.ADJUSTMENT_IN.value, MovementType.RETURN_IN.value
+                MovementType.PURCHASE, MovementType.TRANSFER_IN,
+                MovementType.ADJUSTMENT_IN, MovementType.RETURN_IN
             ]))
         )
         total_in = result.scalar() or Decimal("0")
@@ -349,8 +349,8 @@ def get_product_stock(
             .where(StockMovement.product_id == product_id)
             .where(StockMovement.warehouse_id == warehouse.id)
             .where(StockMovement.movement_type.in_([
-                MovementType.SALE.value, MovementType.TRANSFER_OUT.value,
-                MovementType.ADJUSTMENT_OUT.value, MovementType.RETURN_OUT.value
+                MovementType.SALE, MovementType.TRANSFER_OUT,
+                MovementType.ADJUSTMENT_OUT, MovementType.RETURN_OUT
             ]))
         )
         total_out = result.scalar() or Decimal("0")

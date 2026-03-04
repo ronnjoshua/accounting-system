@@ -94,9 +94,9 @@ def create_customer_payment(
             raise HTTPException(status_code=404, detail="Invoice not found")
         if invoice.customer_id != data.customer_id:
             raise HTTPException(status_code=400, detail="Invoice does not belong to this customer")
-        if invoice.status.value == InvoiceStatus.PAID.value:
+        if invoice.status == InvoiceStatus.PAID:
             raise HTTPException(status_code=400, detail="Invoice is already fully paid")
-        if invoice.status.value == InvoiceStatus.VOID.value:
+        if invoice.status == InvoiceStatus.VOID:
             raise HTTPException(status_code=400, detail="Cannot pay a voided invoice")
 
     payment_number = get_next_customer_payment_number(db)
@@ -278,9 +278,9 @@ def create_vendor_payment(
             raise HTTPException(status_code=404, detail="Bill not found")
         if bill.vendor_id != data.vendor_id:
             raise HTTPException(status_code=400, detail="Bill does not belong to this vendor")
-        if bill.status.value == BillStatus.PAID.value:
+        if bill.status == BillStatus.PAID:
             raise HTTPException(status_code=400, detail="Bill is already fully paid")
-        if bill.status.value == BillStatus.VOID.value:
+        if bill.status == BillStatus.VOID:
             raise HTTPException(status_code=400, detail="Cannot pay a voided bill")
 
     payment_number = get_next_vendor_payment_number(db)

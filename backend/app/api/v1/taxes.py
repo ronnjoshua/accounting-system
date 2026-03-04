@@ -225,7 +225,7 @@ def calculate_tax_period(
         .where(and_(
             Invoice.invoice_date >= period.period_start,
             Invoice.invoice_date <= period.period_end,
-            Invoice.status.notin_([InvoiceStatus.DRAFT.value, InvoiceStatus.VOID.value])
+            Invoice.status.notin_([InvoiceStatus.DRAFT, InvoiceStatus.VOID])
         ))
     )
     period.tax_collected = result.scalar() or Decimal("0")
@@ -236,7 +236,7 @@ def calculate_tax_period(
         .where(and_(
             Bill.bill_date >= period.period_start,
             Bill.bill_date <= period.period_end,
-            Bill.status.notin_([BillStatus.DRAFT.value, BillStatus.VOID.value])
+            Bill.status.notin_([BillStatus.DRAFT, BillStatus.VOID])
         ))
     )
     period.tax_paid = result.scalar() or Decimal("0")
@@ -296,7 +296,7 @@ def get_tax_summary(
     invoice_query = select(func.sum(Invoice.tax_amount)).where(and_(
         Invoice.invoice_date >= start_date,
         Invoice.invoice_date <= end_date,
-        Invoice.status.notin_([InvoiceStatus.DRAFT.value, InvoiceStatus.VOID.value])
+        Invoice.status.notin_([InvoiceStatus.DRAFT, InvoiceStatus.VOID])
     ))
     tax_collected = db.execute(invoice_query).scalar() or Decimal("0")
 
@@ -304,7 +304,7 @@ def get_tax_summary(
     bill_query = select(func.sum(Bill.tax_amount)).where(and_(
         Bill.bill_date >= start_date,
         Bill.bill_date <= end_date,
-        Bill.status.notin_([BillStatus.DRAFT.value, BillStatus.VOID.value])
+        Bill.status.notin_([BillStatus.DRAFT, BillStatus.VOID])
     ))
     tax_paid = db.execute(bill_query).scalar() or Decimal("0")
 
@@ -314,7 +314,7 @@ def get_tax_summary(
             Invoice.invoice_date >= start_date,
             Invoice.invoice_date <= end_date,
             Invoice.tax_amount > 0,
-            Invoice.status.notin_([InvoiceStatus.DRAFT.value, InvoiceStatus.VOID.value])
+            Invoice.status.notin_([InvoiceStatus.DRAFT, InvoiceStatus.VOID])
         ))
     ).scalar() or 0
 
@@ -323,7 +323,7 @@ def get_tax_summary(
             Bill.bill_date >= start_date,
             Bill.bill_date <= end_date,
             Bill.tax_amount > 0,
-            Bill.status.notin_([BillStatus.DRAFT.value, BillStatus.VOID.value])
+            Bill.status.notin_([BillStatus.DRAFT, BillStatus.VOID])
         ))
     ).scalar() or 0
 
