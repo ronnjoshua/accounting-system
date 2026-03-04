@@ -32,7 +32,7 @@ class BudgetCreate(BaseModel):
     name: str
     description: Optional[str] = None
     fiscal_year: int
-    period_type: BudgetPeriodType = BudgetPeriodType.MONTHLY
+    period_type: BudgetPeriodType = BudgetPeriodType.monthly
     notes: Optional[str] = None
 
 

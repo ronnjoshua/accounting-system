@@ -9,7 +9,7 @@ class ProductBase(BaseModel):
     code: str
     name: str
     description: Optional[str] = None
-    product_type: ProductType = ProductType.INVENTORY
+    product_type: ProductType = ProductType.inventory
     category: Optional[str] = None
     brand: Optional[str] = None
     unit_of_measure: str = "unit"
